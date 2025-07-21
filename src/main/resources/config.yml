@@ -106,11 +106,20 @@ market:
   # Maximum listings per player
   max-listings-per-player: 10
   
+  # Maximum listing price
+  max-listing-price: 100000.0
+  
   # Listing duration in hours
   listing-duration: 168
   
   # Enable item inspection
   enable-inspection: true
+  
+  # Enable price history tracking
+  enable-price-history: true
+  
+  # Maximum price history entries per item
+  max-price-history: 100
 
 # Diplomacy Settings
 diplomacy:

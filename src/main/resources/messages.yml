@@ -100,18 +100,39 @@ economy:
 
 # Market Messages
 market:
-  listed: "&aItem listed for ${price}! ID: {id}"
-  unlisted: "&aItem unlisted successfully!"
+  listed: "&aListed {item} x{amount} for ${price} each (${total} total)! ID: #{id}"
+  unlisted: "&aListing canceled successfully!"
   purchased: "&aYou purchased {item} for ${price}!"
-  sold: "&aYour {item} was sold for ${price}!"
+  sold: "&aYour {item} x{amount} was sold for ${price} to {buyer}!"
   
   listing-not-found: "&cListing #{id} not found or expired!"
   already-own: "&cYou cannot buy your own listing!"
   listing-expired: "&cThis listing has expired!"
+  listing-canceled: "&aListing canceled and item returned!"
+  
+  insufficient-funds: "&cYou don't have enough money to purchase this item!"
+  insufficient-space: "&cYou don't have enough inventory space!"
+  max-listings-reached: "&cYou have reached the maximum number of listings!"
+  
+  item-returned: "&aYour expired listing has been returned: {item}"
   
   search-results: "&aFound {count} listings for '{query}':"
   search-item: "&7#{id} - {item} x{amount} - ${price} by {seller}"
-  no-results: "&cNo listings found for '{query}'"
+  no-results: "&cNo listings found" + (query.isEmpty() ? "" : " for '{query}'") + "!"
+  
+  category-help: "&7Available categories: WEAPONS, ARMOR, TOOLS, FOOD, BLOCKS, POTIONS, ENCHANTMENTS, MISC"
+  
+  price-history: "&ePrice History for {item}:"
+  price-average: "&7Average: ${price}"
+  price-latest: "&7Latest: ${price}"
+  price-range: "&7Range: ${min} - ${max}"
+  price-trend: "&7Trend: {trend}%"
+  
+  stats-header: "&6&l=== Market Statistics ==="
+  stats-listings: "&eActive Listings: &f{count}"
+  stats-transactions: "&eTotal Transactions: &f{count}"
+  stats-value: "&eTotal Market Value: &f${value}"
+  stats-average: "&eAverage Price: &f${price}"
 
 # Diplomacy Messages
 diplomacy:

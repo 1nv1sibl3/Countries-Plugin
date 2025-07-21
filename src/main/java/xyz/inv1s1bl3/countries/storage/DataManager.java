@@ -9,6 +9,9 @@ import xyz.inv1s1bl3.countries.CountriesPlugin;
 import xyz.inv1s1bl3.countries.core.country.Country;
 import xyz.inv1s1bl3.countries.core.economy.BankAccount;
 import xyz.inv1s1bl3.countries.core.economy.Transaction;
+import xyz.inv1s1bl3.countries.core.market.MarketListing;
+import xyz.inv1s1bl3.countries.core.market.MarketTransaction;
+import xyz.inv1s1bl3.countries.core.market.PriceHistory;
 import xyz.inv1s1bl3.countries.core.territory.Territory;
 
 import java.io.File;
@@ -17,8 +20,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -40,6 +46,7 @@ public final class DataManager {
     private final File countriesFile;
     private final File territoriesFile;
     private final File economyFile;
+    private final File marketFile;
     
     public DataManager(@NotNull final CountriesPlugin plugin) {
         this.plugin = plugin;
@@ -61,6 +68,7 @@ public final class DataManager {
         this.countriesFile = new File(this.dataFolder, "countries.json");
         this.territoriesFile = new File(this.dataFolder, "territories.json");
         this.economyFile = new File(this.dataFolder, "economy.json");
+        this.marketFile = new File(this.dataFolder, "market.json");
     }
     
     /**
@@ -70,6 +78,7 @@ public final class DataManager {
         this.loadCountryData();
         this.loadTerritoryData();
         this.loadEconomyData();
+        this.loadMarketData();
         
         this.plugin.getLogger().info("All data loaded successfully!");
     }
@@ -81,6 +90,7 @@ public final class DataManager {
         this.saveCountryData();
         this.saveTerritoryData();
         this.saveEconomyData();
+        this.saveMarketData();
         
         if (this.plugin.getConfigManager().isDebugEnabled()) {
             this.plugin.getLogger().info("All data saved successfully!");
@@ -240,6 +250,72 @@ public final class DataManager {
     }
     
     /**
+     * Load market data from file.
+     */
+    public void loadMarketData() {
+        if (!this.marketFile.exists()) {
+            this.plugin.getLogger().info("Market data file not found, starting with empty data.");
+            return;
+        }
+        
+        try (final FileReader reader = new FileReader(this.marketFile)) {
+            final Type type = new TypeToken<Map<String, Object>>(){}.getType();
+            final Map<String, Object> marketData = this.gson.fromJson(reader, type);
+            
+            if (marketData != null) {
+                // Load listings
+                final Type listingType = new TypeToken<Map<UUID, MarketListing>>(){}.getType();
+                final Map<UUID, MarketListing> listings = this.gson.fromJson(
+                    this.gson.toJson(marketData.get("active_listings")), listingType);
+                
+                // Load transactions
+                final Type transactionType = new TypeToken<List<MarketTransaction>>(){}.getType();
+                final List<MarketTransaction> transactions = this.gson.fromJson(
+                    this.gson.toJson(marketData.get("transactions")), transactionType);
+                
+                // Load price histories
+                final Type priceType = new TypeToken<Map<String, PriceHistory>>(){}.getType();
+                final Map<String, PriceHistory> priceHistories = this.gson.fromJson(
+                    this.gson.toJson(marketData.get("price_histories")), priceType);
+                
+                this.plugin.getMarketManager().loadMarketData(
+                    listings != null ? listings : new HashMap<>(),
+                    transactions != null ? transactions : new ArrayList<>(),
+                    priceHistories != null ? priceHistories : new HashMap<>()
+                );
+                
+                this.plugin.getLogger().info("Loaded market data: " + 
+                    (listings != null ? listings.size() : 0) + " listings, " +
+                    (transactions != null ? transactions.size() : 0) + " transactions.");
+            }
+            
+        } catch (final IOException exception) {
+            this.plugin.getLogger().severe("Failed to load market data: " + exception.getMessage());
+            exception.printStackTrace();
+        }
+    }
+    
+    /**
+     * Save market data to file.
+     */
+    public void saveMarketData() {
+        CompletableFuture.runAsync(() -> {
+            try (final FileWriter writer = new FileWriter(this.marketFile)) {
+                final Map<String, Object> marketData = this.plugin.getMarketManager().getAllMarketData();
+                this.gson.toJson(marketData, writer);
+                
+                if (this.plugin.getConfigManager().isDebugEnabled()) {
+                    this.plugin.getLogger().info("Saved market data to file.");
+                }
+                
+            } catch (final IOException exception) {
+                this.plugin.getLogger().severe("Failed to save market data: " + exception.getMessage());
+                exception.printStackTrace();
+            }
+        });
+    }
+    
+    /**
      * Create a backup of all data files.
      * 
      * @return true if backup was created successfully
@@ -282,6 +358,7 @@ public final class DataManager {
                 "accounts", this.plugin.getEconomyManager().getAccounts(),
                 "transactions", this.plugin.getEconomyManager().getGlobalTransactionLog()
             ));
+            exportData.put("market", this.plugin.getMarketManager().getAllMarketData());
             exportData.put("export_time", LocalDateTime.now());
             exportData.put("plugin_version", this.plugin.getDescription().getVersion());
             
@@ -343,6 +420,24 @@ public final class DataManager {
                         );
                     }
                     
+                    if (importData.containsKey("market")) {
+                        @SuppressWarnings("unchecked")
+                        final Map<String, Object> marketImportData = (Map<String, Object>) importData.get("market");
+                        
+                        @SuppressWarnings("unchecked")
+                        final Map<UUID, MarketListing> listings = (Map<UUID, MarketListing>) marketImportData.get("active_listings");
+                        @SuppressWarnings("unchecked")
+                        final List<MarketTransaction> transactions = (List<MarketTransaction>) marketImportData.get("transactions");
+                        @SuppressWarnings("unchecked")
+                        final Map<String, PriceHistory> priceHistories = (Map<String, PriceHistory>) marketImportData.get("price_histories");
+                        
+                        this.plugin.getMarketManager().loadMarketData(
+                            listings != null ? listings : new HashMap<>(),
+                            transactions != null ? transactions : new ArrayList<>(),
+                            priceHistories != null ? priceHistories : new HashMap<>()
+                        );
+                    }
+                    
                     this.plugin.getLogger().info("Data imported from: " + fileName);
                     return true;
                 }
@@ -369,6 +464,7 @@ public final class DataManager {
         stats.put("countries_file_size", this.countriesFile.exists() ? this.countriesFile.length() : 0);
         stats.put("territories_file_size", this.territoriesFile.exists() ? this.territoriesFile.length() : 0);
         stats.put("economy_file_size", this.economyFile.exists() ? this.economyFile.length() : 0);
+        stats.put("market_file_size", this.marketFile.exists() ? this.marketFile.length() : 0);
         stats.put("last_save_time", LocalDateTime.now());
         
         return stats;
