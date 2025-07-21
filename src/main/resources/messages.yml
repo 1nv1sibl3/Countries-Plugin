@@ -1,207 +1,259 @@
 # Countries Plugin Messages
-# Use & for color codes, {variable} for placeholders
+# All plugin messages and localization
 
 # General Messages
 general:
-  no-permission: "&cYou don't have permission to use this command!"
-  player-only: "&cThis command can only be used by players!"
-  unknown-command: "&cUnknown command! Use /help for available commands."
-  invalid-syntax: "&cInvalid syntax! Usage: {usage}"
-  player-not-found: "&cPlayer '{player}' not found!"
-  insufficient-funds: "&cYou need {amount} to do this!"
-  success: "&aAction completed successfully!"
+  prefix: "&8[&6Countries&8]&r"
+  no-permission: "&cYou don't have permission to do that!"
+  invalid-command: "&cInvalid command usage. Use &e{usage}&c for help."
+  player-not-found: "&cPlayer '&e{player}&c' not found or is offline!"
+  invalid-number: "&cInvalid number: &e{input}"
+  command-disabled: "&cThis command is currently disabled."
+  feature-disabled: "&cThis feature is currently disabled."
+  database-error: "&cA database error occurred. Please contact an administrator."
+  reload-success: "&aCountries plugin reloaded successfully!"
+  reload-error: "&cFailed to reload plugin: &e{error}"
 
 # Country Messages
 country:
-  created: "&aCountry '{country}' has been created successfully!"
-  create-failed: "&cFailed to create country '{country}'. It may already exist."
-  not-found: "&cCountry '{country}' not found!"
-  already-exists: "&cA country with that name already exists!"
-  deleted: "&cCountry '{country}' has been deleted!"
+  # Creation
+  create-usage: "&eUsage: /country create <name> [government-type]"
+  create-success: "&aSuccessfully created country '&e{name}&a'!"
+  create-failed: "&cFailed to create country: &e{reason}"
+  create-exists: "&cA country with that name already exists!"
+  create-invalid-name: "&cInvalid country name. Must be {min}-{max} characters and contain only letters, numbers, spaces, hyphens, and underscores."
+  create-no-money: "&cYou need &e${cost}&c to create a country!"
+  create-max-countries: "&cYou have reached the maximum number of countries you can create ({max})!"
   
-  joined: "&aYou have joined {country}!"
-  left: "&aYou have left {country}!"
-  kicked: "&cYou have been kicked from {country}!"
-  invite-sent: "&aInvitation sent to {player}!"
-  invite-received: "&aYou have been invited to join {country}! Use /country accept to join."
+  # Information
+  info-header: "&8&m----------&r &6{name} Information &8&m----------"
+  info-government: "&7Government: &e{government}"
+  info-leader: "&7Leader: &e{leader}"
+  info-citizens: "&7Citizens: &e{count}/{max}"
+  info-territory: "&7Territory: &e{chunks} chunks"
+  info-treasury: "&7Treasury: &e${balance}"
+  info-founded: "&7Founded: &e{date}"
+  info-description: "&7Description: &f{description}"
   
-  already-member: "&cYou are already a member of a country!"
-  not-member: "&cYou are not a member of any country!"
-  cant-leave-leader: "&cYou cannot leave as the country leader! Transfer leadership first."
+  # Management
+  dissolve-confirm: "&eAre you sure you want to dissolve '&6{name}&e'? This action cannot be undone! Use &c/country dissolve confirm&e to proceed."
+  dissolve-success: "&aCountry '&e{name}&a' has been dissolved."
+  dissolve-failed: "&cFailed to dissolve country: &e{reason}"
+  dissolve-not-leader: "&cOnly the country leader can dissolve the country!"
   
-  promoted: "&aYou have been promoted to {role} in {country}!"
-  demoted: "&aYou have been demoted to {role} in {country}!"
+  # Membership
+  not-in-country: "&cYou are not a member of any country!"
+  not-country-member: "&cPlayer '&e{player}&c' is not a member of your country!"
+  already-in-country: "&cYou are already a member of a country!"
+  invite-sent: "&aInvitation sent to &e{player}&a!"
+  invite-received: "&6{player}&a has invited you to join &e{country}&a! &7[&aAccept&7] [&cDecline&7]"
+  join-success: "&aYou have joined &e{country}&a!"
+  leave-success: "&aYou have left &e{country}&a!"
+  leave-as-leader: "&cYou cannot leave as the leader! Transfer leadership or dissolve the country first."
   
-  already-highest-rank: "&cPlayer is already at the highest rank!"
-  already-lowest-rank: "&cPlayer is already at the lowest rank!"
-  
-  info-header: "&6&l=== {country} Information ==="
-  info-leader: "&eLeader: &f{leader}"
-  info-government: "&eGovernment: &f{government}"
-  info-citizens: "&eCitizens: &f{citizens}/{max}"
-  info-balance: "&eBalance: &f${balance}"
-  info-territories: "&eTerritories: &f{territories}"
-  info-founded: "&eFounded: &f{date}"
+  # Roles
+  role-set: "&aSet &e{player}&a's role to &e{role}&a!"
+  role-invalid: "&cInvalid role: &e{role}"
+  role-no-permission: "&cYou don't have permission to set that role!"
 
 # Territory Messages
 territory:
-  created: "&aTerritory '{territory}' created successfully!"
-  create-failed: "&cFailed to create territory '{territory}'! {reason}"
-  deleted: "&aTerritory '{territory}' has been deleted!"
-  not-found: "&cTerritory '{territory}' not found!"
+  # Claiming
+  claim-success: "&aSuccessfully claimed chunk at &e{x}, {z}&a for &e${cost}&a!"
+  claim-failed: "&cFailed to claim chunk: &e{reason}"
+  claim-already-claimed: "&cThis chunk is already claimed by &e{country}&c!"
+  claim-no-money: "&cYour country needs &e${cost}&c to claim this chunk!"
+  claim-max-chunks: "&cYour country has reached the maximum chunk limit ({max})!"
+  claim-not-in-country: "&cYou must be in a country to claim territory!"
+  claim-no-permission: "&cYou don't have permission to claim territory for your country!"
   
-  claimed: "&aTerritory '{territory}' claimed successfully!"
-  unclaimed: "&aTerritory unclaimed successfully!"
-  claim-failed: "&cFailed to claim territory! {reason}"
-  already-claimed: "&cThis chunk is already claimed!"
-  not-claimed: "&cThis chunk is not claimed!"
+  # Unclaiming
+  unclaim-success: "&aSuccessfully unclaimed chunk at &e{x}, {z}&a!"
+  unclaim-failed: "&cFailed to unclaim chunk: &e{reason}"
+  unclaim-not-claimed: "&cThis chunk is not claimed!"
+  unclaim-not-your-country: "&cThis chunk belongs to &e{country}&c, not your country!"
+  unclaim-no-permission: "&cYou don't have permission to unclaim territory!"
   
-  protected: "&cThis area is protected by {country}!"
-  entering: "&aEntering {territory} ({country})"
-  leaving: "&aLeaving {territory}"
+  # Information
+  info-unclaimed: "&7This chunk is unclaimed."
+  info-claimed: "&7This chunk is claimed by &e{country}&7."
+  info-type: "&7Territory Type: &e{type}"
+  info-price: "&7Claim Price: &e${price}"
   
-  insufficient-funds: "&cYour country needs ${cost} to claim this territory!"
-  max-territories: "&cYour country has reached the maximum number of territories!"
-  too-close: "&cThis territory is too close to another country's territory!"
+  # Protection
+  protection-block-break: "&cYou cannot break blocks in &e{country}&c territory!"
+  protection-block-place: "&cYou cannot place blocks in &e{country}&c territory!"
+  protection-interaction: "&cYou cannot interact with that in &e{country}&c territory!"
+  protection-entity-damage: "&cYou cannot harm entities in &e{country}&c territory!"
   
-  info-name: "&eName: &f{name}"
-  info-type: "&eType: &f{type}"
-  info-owner: "&eOwner: &f{country}"
-  info-size: "&eSize: &f{chunks} chunks"
+  # Auto-claim
+  auto-claim-enabled: "&aAuto-claim enabled!"
+  auto-claim-disabled: "&cAuto-claim disabled!"
+  auto-claim-chunk: "&7Auto-claimed chunk at &e{x}, {z}&7 for &e${cost}&7!"
 
 # Economy Messages
 economy:
-  balance-self: "&aYour balance: &f${balance}"
-  balance-other: "&a{player}'s balance: &f${balance}"
-  country-balance: "&a{country} balance: &f${balance}"
+  # Balance
+  balance-self: "&aYour balance: &e${balance}"
+  balance-other: "&e{player}&a's balance: &e${balance}"
+  balance-country: "&e{country}&a treasury: &e${balance}"
   
-  payment-sent: "&aYou sent ${amount} to {player}!"
-  payment-received: "&aYou received ${amount} from {player}!"
+  # Transfers
+  transfer-usage: "&eUsage: /economy transfer <player/country> <amount>"
+  transfer-success: "&aTransferred &e${amount}&a to &e{target}&a!"
+  transfer-received: "&aReceived &e${amount}&a from &e{sender}&a!"
+  transfer-failed: "&cTransfer failed: &e{reason}"
+  transfer-insufficient: "&cInsufficient funds! You need &e${amount}&c."
+  transfer-invalid-amount: "&cInvalid amount: &e{amount}"
+  transfer-self: "&cYou cannot transfer money to yourself!"
   
-  tax-collected: "&aTax collected: ${amount} from {citizens} citizens"
-  tax-paid: "&cTax paid: ${amount} to {country}"
-  tax-rate-set: "&aTax rate set to {rate}% for {country}"
+  # Taxes
+  tax-collected: "&7Tax collected: &e${amount}&7 from &e{citizens}&7 citizens."
+  tax-paid: "&7You paid &e${amount}&7 in taxes to &e{country}&7."
+  tax-rate-set: "&aTax rate set to &e{rate}%&a!"
+  tax-rate-invalid: "&cTax rate must be between 0% and {max}%!"
   
-  salary-received: "&aYou received your salary: ${amount}"
-  salary-set: "&aSalary for {role} set to ${amount}"
-  
-  transaction-log: "&7[{time}] {type}: ${amount} ({description})"
-  
-  insufficient-balance: "&cInsufficient balance! You need ${amount}."
-  invalid-amount: "&cInvalid amount! Please enter a positive number."
-  payment-limit-exceeded: "&cPayment amount exceeds the maximum limit of ${limit}!"
-  
-  account-frozen: "&cYour account is frozen and cannot perform transactions!"
-  account-inactive: "&cYour account is inactive!"
-  
-  tax-burden-info: "&eTotal tax burden for {country}: &f${amount}"
-  salary-cost-info: "&eTotal salary cost for {country}: &f${amount}"
-  cannot-afford-salaries: "&cYour country cannot afford to pay all salaries!"
+  # Salary
+  salary-paid: "&aReceived salary: &e${amount}&a from &e{country}&a!"
+  salary-set: "&aSalary for &e{role}&a set to &e${amount}&a per day!"
 
-# Market Messages
-market:
-  listed: "&aListed {item} x{amount} for ${price} each (${total} total)! ID: #{id}"
-  unlisted: "&aListing canceled successfully!"
-  purchased: "&aYou purchased {item} for ${price}!"
-  sold: "&aYour {item} x{amount} was sold for ${price} to {buyer}!"
+# Trading Messages
+trading:
+  # Initiation
+  trade-request-sent: "&aTrade request sent to &e{player}&a!"
+  trade-request-received: "&e{player}&a wants to trade with you! &7[&aAccept&7] [&cDecline&7]"
+  trade-accepted: "&aTrade request accepted!"
+  trade-declined: "&cTrade request declined."
+  trade-expired: "&cTrade request expired."
+  trade-already-trading: "&cYou are already in a trade!"
   
-  listing-not-found: "&cListing #{id} not found or expired!"
-  already-own: "&cYou cannot buy your own listing!"
-  listing-expired: "&cThis listing has expired!"
-  listing-canceled: "&aListing canceled and item returned!"
-  
-  insufficient-funds: "&cYou don't have enough money to purchase this item!"
-  insufficient-space: "&cYou don't have enough inventory space!"
-  max-listings-reached: "&cYou have reached the maximum number of listings!"
-  
-  item-returned: "&aYour expired listing has been returned: {item}"
-  
-  search-results: "&aFound {count} listings for '{query}':"
-  search-item: "&7#{id} - {item} x{amount} - ${price} by {seller}"
-  no-results: "&cNo listings found" + (query.isEmpty() ? "" : " for '{query}'") + "!"
-  
-  category-help: "&7Available categories: WEAPONS, ARMOR, TOOLS, FOOD, BLOCKS, POTIONS, ENCHANTMENTS, MISC"
-  
-  price-history: "&ePrice History for {item}:"
-  price-average: "&7Average: ${price}"
-  price-latest: "&7Latest: ${price}"
-  price-range: "&7Range: ${min} - ${max}"
-  price-trend: "&7Trend: {trend}%"
-  
-  stats-header: "&6&l=== Market Statistics ==="
-  stats-listings: "&eActive Listings: &f{count}"
-  stats-transactions: "&eTotal Transactions: &f{count}"
-  stats-value: "&eTotal Market Value: &f${value}"
-  stats-average: "&eAverage Price: &f${price}"
+  # Trading
+  trade-started: "&aTrade started with &e{player}&a!"
+  trade-ready: "&aYou are ready to trade!"
+  trade-not-ready: "&e{player}&c is not ready to trade yet."
+  trade-completed: "&aTrade completed successfully!"
+  trade-cancelled: "&cTrade cancelled."
+  trade-timeout: "&cTrade timed out after {minutes} minutes."
 
 # Diplomacy Messages
 diplomacy:
-  alliance-proposed: "&aAlliance proposed to {country}!"
-  alliance-accepted: "&a{country1} and {country2} are now allies!"
-  alliance-rejected: "&c{country} rejected your alliance proposal!"
-  alliance-broken: "&cAlliance between {country1} and {country2} has ended!"
+  # Relations
+  relation-set: "&aSet relation with &e{country}&a to &e{relation}&a!"
+  relation-invalid: "&cInvalid relation type: &e{relation}"
+  relation-self: "&cYou cannot set relations with your own country!"
+  relation-cooldown: "&cYou must wait &e{time}&c before changing relations again!"
   
-  war-declared: "&c{country1} has declared war on {country2}!"
-  war-ended: "&aWar between {country1} and {country2} has ended!"
+  # War
+  war-declared: "&c{declarer}&c has declared war on &c{target}&c!"
+  war-ended: "&aWar between &e{country1}&a and &e{country2}&a has ended!"
+  war-cooldown: "&cYou must wait &e{time}&c before declaring war again!"
+  war-already-at-war: "&cYou are already at war with &e{country}&c!"
   
-  relation-set: "&aRelation with {country} set to {relation}!"
-  relation-info: "&eRelation with {country}: &f{relation}"
-  
-  trade-proposed: "&aTrade agreement proposed to {country}!"
-  trade-accepted: "&aTrade agreement with {country} is now active!"
-  trade-expired: "&cTrade agreement with {country} has expired!"
+  # Alliances
+  alliance-created: "&aAlliance '&e{name}&a' created successfully!"
+  alliance-disbanded: "&cAlliance '&e{name}&c' has been disbanded!"
+  alliance-joined: "&a{country}&a has joined the &e{alliance}&a alliance!"
+  alliance-left: "&e{country}&c has left the &e{alliance}&c alliance!"
+  alliance-max-allies: "&cYour country has reached the maximum number of allies ({max})!"
 
-# Law Messages
-law:
-  created: "&aLaw '{law}' created successfully!"
-  removed: "&aLaw '{law}' removed!"
-  crime-reported: "&cCrime reported: {crime} by {player}"
-  arrested: "&cYou have been arrested for {crime}! Fine: ${fine}"
+# Legal Messages
+legal:
+  # Crimes
+  crime-recorded: "&cCrime recorded: &e{crime}&c by &e{player}&c in &e{country}&c!"
+  crime-list-header: "&8&m----------&r &6Criminal Record &8&m----------"
+  crime-entry: "&7{date} - &e{crime}&7 in &e{country}"
   
-  warrant-issued: "&cArrest warrant issued for {player}"
-  fine-paid: "&aYou paid a fine of ${amount} for {crime}"
-  jail-time: "&cYou are jailed for {minutes} minutes!"
+  # Arrests
+  arrest-success: "&e{player}&c has been arrested for &e{crime}&c!"
+  arrest-failed: "&cFailed to arrest player: &e{reason}"
+  arrest-released: "&aYou have been released from jail!"
+  arrest-time-remaining: "&cJail time remaining: &e{time}"
   
-  law-list: "&eLaws in {country}:"
-  law-item: "&7- {law} (Fine: ${fine})"
+  # Fines
+  fine-issued: "&cFine issued: &e${amount}&c for &e{crime}&c!"
+  fine-paid: "&aFine paid: &e${amount}&a!"
+  fine-insufficient: "&cInsufficient funds to pay fine of &e${amount}&c!"
+  
+  # Laws
+  law-created: "&aLaw created: &e{law}"
+  law-removed: "&cLaw removed: &e{law}"
+  law-exists: "&cA law with that name already exists!"
+  law-max-reached: "&cYour country has reached the maximum number of laws ({max})!"
+
+# Chat Messages
+chat:
+  # Channels
+  channel-switched: "&aSwitched to &e{channel}&a chat!"
+  channel-invalid: "&cInvalid chat channel: &e{channel}"
+  
+  # Formats
+  country-chat-format: "&6[Country] &e{player}&7: &f{message}"
+  government-chat-format: "&9[Government] &e{player}&7: &f{message}"
+  alliance-chat-format: "&a[Alliance] &e{player}&7: &f{message}"
 
 # GUI Messages
 gui:
+  # General
+  loading: "&7Loading..."
   previous-page: "&ePrevious Page"
   next-page: "&eNext Page"
   close: "&cClose"
   back: "&7Back"
   
-  click-to-select: "&aClick to select"
-  click-to-manage: "&aClick to manage"
-  click-to-buy: "&aClick to buy"
-  click-to-accept: "&aClick to accept"
-  click-to-reject: "&cClick to reject"
+  # Country GUI
+  country-dashboard: "&6Country Dashboard"
+  territory-management: "&eTerritories"
+  economy-management: "&aEconomy"
+  member-management: "&bMembers"
+  settings: "&7Settings"
   
-  loading: "&7Loading..."
-  no-data: "&7No data available"
+  # Buttons
+  click-to-open: "&7Click to open"
+  click-to-toggle: "&7Click to toggle"
+  shift-click-info: "&7Shift-click for more info"
 
-# Error Messages
-error:
-  command-error: "&cAn error occurred while executing the command!"
-  data-save-failed: "&cFailed to save data! Please contact an administrator."
-  data-load-failed: "&cFailed to load data! Please contact an administrator."
-  
-  country-not-loaded: "&cCountry data not loaded! Please try again later."
-  player-data-corrupted: "&cYour player data may be corrupted! Please contact an administrator."
-  
-  gui-error: "&cAn error occurred while opening the GUI!"
-  permission-error: "&cYou don't have permission to do this!"
+# Time Formats
+time:
+  seconds: "{time} second(s)"
+  minutes: "{time} minute(s)"
+  hours: "{time} hour(s)"
+  days: "{time} day(s)"
+  weeks: "{time} week(s)"
+  months: "{time} month(s)"
+  years: "{time} year(s)"
 
-# Admin Messages
-admin:
-  reloaded: "&aCountries plugin reloaded successfully!"
-  backup-created: "&aBackup created successfully!"
-  debug-enabled: "&aDebug mode enabled!"
-  debug-disabled: "&aDebug mode disabled!"
-  
-  data-export: "&aData exported to {file}!"
-  data-import: "&aData imported from {file}!"
-  
-  force-save: "&aForced data save completed!"
-  cache-cleared: "&aCache cleared successfully!"
+# Government Types
+governments:
+  monarchy: "Monarchy"
+  democracy: "Democracy"
+  republic: "Republic"
+  federation: "Federation"
+  oligarchy: "Oligarchy"
+  theocracy: "Theocracy"
+  autocracy: "Autocracy"
+  anarchy: "Anarchy"
+
+# Territory Types
+territories:
+  residential: "Residential"
+  commercial: "Commercial"
+  industrial: "Industrial"
+  agricultural: "Agricultural"
+  military: "Military"
+  capital: "Capital"
+  wilderness: "Wilderness"
+
+# Relation Types
+relations:
+  ally: "&aAlly"
+  friendly: "&2Friendly"
+  neutral: "&7Neutral"
+  unfriendly: "&6Unfriendly"
+  enemy: "&cEnemy"
+
+# Roles
+roles:
+  leader: "&6Leader"
+  minister: "&5Minister"
+  citizen: "&eCitizen"
+  guest: "&7Guest"

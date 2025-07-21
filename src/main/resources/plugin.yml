@@ -1,103 +1,133 @@
 name: Countries
 version: '${project.version}'
-description: A comprehensive countries management plugin for Minecraft
 main: xyz.inv1s1bl3.countries.CountriesPlugin
-api-version: 1.20
-author: inv1s1bl3
-website: https://github.com/inv1s1bl3/countries
+api-version: '1.21'
+prefix: Countries
+authors: [inv1s1bl3]
+description: A comprehensive plugin for managing countries, territories, economy, and diplomacy
+website: https://github.com/inv1s1bl3/Countries
+
+depend: [Vault]
+softdepend: [PlaceholderAPI, WorldEdit, Dynmap]
 
 commands:
   country:
     description: Main country management command
-    usage: /country <subcommand>
+    usage: /<command> <subcommand> [args...]
+    permission: countries.command.country
     aliases: [c, nation, n]
-    permission: countries.country.use
+  
   territory:
     description: Territory management command
-    usage: /territory <subcommand>
+    usage: /<command> <subcommand> [args...]
+    permission: countries.command.territory
     aliases: [t, land, claim]
-    permission: countries.territory.use
+  
   economy:
     description: Economy management command
-    usage: /economy <subcommand>
-    aliases: [eco, money, bank]
-    permission: countries.economy.use
-  market:
-    description: Market trading command
-    usage: /market <subcommand>
-    aliases: [m, trade, shop]
-    permission: countries.market.use
+    usage: /<command> <subcommand> [args...]
+    permission: countries.command.economy
+    aliases: [eco, money, balance]
+  
   diplomacy:
     description: Diplomacy management command
-    usage: /diplomacy <subcommand>
-    aliases: [dip, relations, ally]
-    permission: countries.diplomacy.use
+    usage: /<command> <subcommand> [args...]
+    permission: countries.command.diplomacy
+    aliases: [diplo, relations]
+  
+  trade:
+    description: Trading system command
+    usage: /<command> <subcommand> [args...]
+    permission: countries.command.trade
+    aliases: [trading]
+  
+  legal:
+    description: Legal system command
+    usage: /<command> <subcommand> [args...]
+    permission: countries.command.legal
+    aliases: [law, court, crime]
+  
+  countries-admin:
+    description: Administrative commands
+    usage: /<command> <subcommand> [args...]
+    permission: countries.admin
+    aliases: [cadmin, countriesadmin]
 
 permissions:
   countries.*:
-    description: Gives access to all Countries features
+    description: Grants all Countries permissions
     default: op
     children:
-      countries.country.*: true
-      countries.territory.*: true
-      countries.economy.*: true
-      countries.market.*: true
-      countries.diplomacy.*: true
-      countries.law.*: true
-      countries.admin.*: true
-      
-  countries.country.*:
-    description: All country permissions
+      countries.command.*: true
+      countries.admin: true
+  
+  countries.command.*:
+    description: Grants all command permissions
     default: true
     children:
-      countries.country.use: true
-      countries.country.create: true
-      countries.country.join: true
-      countries.country.leave: true
-      countries.country.invite: true
-      countries.country.kick: true
-      countries.country.manage: true
-      
-  countries.territory.*:
-    description: All territory permissions
+      countries.command.country: true
+      countries.command.territory: true
+      countries.command.economy: true
+      countries.command.diplomacy: true
+      countries.command.trade: true
+      countries.command.legal: true
+  
+  countries.command.country:
+    description: Allows use of country commands
     default: true
-    children:
-      countries.territory.use: true
-      countries.territory.claim: true
-      countries.territory.unclaim: true
-      countries.territory.manage: true
-      
-  countries.economy.*:
-    description: All economy permissions
+  
+  countries.command.territory:
+    description: Allows use of territory commands
     default: true
-    children:
-      countries.economy.use: true
-      countries.economy.pay: true
-      countries.economy.balance: true
-      countries.economy.manage: true
-      
-  countries.market.*:
-    description: All market permissions
+  
+  countries.command.economy:
+    description: Allows use of economy commands
     default: true
-    children:
-      countries.market.use: true
-      countries.market.list: true
-      countries.market.buy: true
-      countries.market.search: true
-      
-  countries.diplomacy.*:
-    description: All diplomacy permissions
+  
+  countries.command.diplomacy:
+    description: Allows use of diplomacy commands
     default: true
-    children:
-      countries.diplomacy.use: true
-      countries.diplomacy.ally: true
-      countries.diplomacy.war: true
-      countries.diplomacy.trade: true
-      
-  countries.admin.*:
-    description: Administrative permissions
+  
+  countries.command.trade:
+    description: Allows use of trade commands
+    default: true
+  
+  countries.command.legal:
+    description: Allows use of legal commands
+    default: true
+  
+  countries.admin:
+    description: Grants administrative access
     default: op
-    children:
-      countries.admin.reload: true
-      countries.admin.debug: true
-      countries.admin.backup: true
+  
+  countries.bypass:
+    description: Bypasses all protections and restrictions
+    default: false
+  
+  countries.country.create:
+    description: Allows creating countries
+    default: true
+  
+  countries.country.dissolve:
+    description: Allows dissolving own country
+    default: true
+  
+  countries.territory.claim:
+    description: Allows claiming territory
+    default: true
+  
+  countries.territory.unclaim:
+    description: Allows unclaiming territory
+    default: true
+  
+  countries.economy.transfer:
+    description: Allows money transfers
+    default: true
+  
+  countries.trade.initiate:
+    description: Allows initiating trades
+    default: true
+  
+  countries.diplomacy.manage:
+    description: Allows managing diplomatic relations
+    default: false

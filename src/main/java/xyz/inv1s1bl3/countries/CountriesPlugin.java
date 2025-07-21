@@ -1,236 +1,280 @@
 package xyz.inv1s1bl3.countries;
 
 import lombok.Getter;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
-import xyz.inv1s1bl3.countries.commands.*;
 import xyz.inv1s1bl3.countries.config.ConfigManager;
-import xyz.inv1s1bl3.countries.core.country.CountryManager;
-import xyz.inv1s1bl3.countries.core.territory.TerritoryManager;
-import xyz.inv1s1bl3.countries.core.economy.EconomyManager;
-import xyz.inv1s1bl3.countries.core.market.MarketManager;
-import xyz.inv1s1bl3.countries.core.diplomacy.DiplomacyManager;
-import xyz.inv1s1bl3.countries.gui.GUIManager;
-import xyz.inv1s1bl3.countries.listeners.PlayerListener;
-import xyz.inv1s1bl3.countries.listeners.ChunkListener;
-import xyz.inv1s1bl3.countries.listeners.GUIListener;
-import xyz.inv1s1bl3.countries.storage.DataManager;
-import xyz.inv1s1bl3.countries.utils.ChatUtils;
+import xyz.inv1s1bl3.countries.database.DatabaseManager;
+import xyz.inv1s1bl3.countries.country.CountryManager;
+import xyz.inv1s1bl3.countries.territory.TerritoryManager;
+import xyz.inv1s1bl3.countries.economy.EconomyManager;
+import xyz.inv1s1bl3.countries.trading.TradingManager;
+import xyz.inv1s1bl3.countries.diplomacy.DiplomacyManager;
+import xyz.inv1s1bl3.countries.legal.LegalManager;
+import xyz.inv1s1bl3.countries.gui.GuiManager;
+import xyz.inv1s1bl3.countries.chat.ChatManager;
+import xyz.inv1s1bl3.countries.visualization.ParticleManager;
+import xyz.inv1s1bl3.countries.commands.CommandManager;
+import xyz.inv1s1bl3.countries.listeners.PlayerEventListener;
+import xyz.inv1s1bl3.countries.listeners.BlockEventListener;
+import xyz.inv1s1bl3.countries.listeners.ChatEventListener;
+import xyz.inv1s1bl3.countries.listeners.EconomyEventListener;
 
 /**
- * Main plugin class for the Countries plugin.
- * Manages initialization, shutdown, and provides static access to the plugin instance.
- * 
- * @author inv1s1bl3
- * @version 1.0.0
+ * Main plugin class for Countries
+ * Manages plugin lifecycle and core systems
  */
+@Getter
 public final class CountriesPlugin extends JavaPlugin {
     
     @Getter
     private static CountriesPlugin instance;
     
     // Core managers
-    @Getter
     private ConfigManager configManager;
-    @Getter
-    private DataManager dataManager;
-    @Getter
+    private DatabaseManager databaseManager;
+    
+    // Feature managers
     private CountryManager countryManager;
-    @Getter
     private TerritoryManager territoryManager;
-    @Getter
     private EconomyManager economyManager;
-    @Getter
-    private MarketManager marketManager;
-    @Getter
+    private TradingManager tradingManager;
     private DiplomacyManager diplomacyManager;
-    @Getter
-    private GUIManager guiManager;
+    private LegalManager legalManager;
+    
+    // UI and interaction managers
+    private GuiManager guiManager;
+    private ChatManager chatManager;
+    private ParticleManager particleManager;
+    
+    // Command and event handling
+    private CommandManager commandManager;
+    
+    // External dependencies
+    private Economy vaultEconomy;
     
     @Override
     public void onEnable() {
-        // Set static instance
         instance = this;
         
-        // Initialize the plugin
-        if (!this.initialize()) {
-            this.getLogger().severe("Failed to initialize Countries plugin! Disabling...");
-            this.getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
+        this.getLogger().info("Starting Countries plugin initialization...");
         
-        this.getLogger().info("Countries plugin has been enabled successfully!");
+        try {
+            // Initialize core systems first
+            this.initializeCore();
+            
+            // Initialize feature managers
+            this.initializeFeatures();
+            
+            // Initialize UI and interaction systems
+            this.initializeInteraction();
+            
+            // Initialize commands and listeners
+            this.initializeCommandsAndListeners();
+            
+            // Setup external integrations
+            this.setupIntegrations();
+            
+            this.getLogger().info("Countries plugin has been successfully enabled!");
+            
+        } catch (final Exception exception) {
+            this.getLogger().severe("Failed to initialize Countries plugin: " + exception.getMessage());
+            exception.printStackTrace();
+            this.getServer().getPluginManager().disablePlugin(this);
+        }
     }
     
     @Override
     public void onDisable() {
-        // Save all data before shutdown
-        if (this.dataManager != null) {
-            this.dataManager.saveAllData();
-        }
+        this.getLogger().info("Disabling Countries plugin...");
         
-        // Cancel any running tasks
-        this.getServer().getScheduler().cancelTasks(this);
-        
-        this.getLogger().info("Countries plugin has been disabled!");
-    }
-    
-    /**
-     * Initialize all plugin components.
-     * 
-     * @return true if initialization was successful, false otherwise
-     */
-    private boolean initialize() {
         try {
-            // Initialize configuration manager
-            this.configManager = new ConfigManager(this);
-            if (!this.configManager.loadConfigs()) {
-                return false;
+            // Save all data before shutdown
+            if (this.countryManager != null) {
+                this.countryManager.saveAllData();
             }
             
-            // Initialize data manager
-            this.dataManager = new DataManager(this);
+            if (this.territoryManager != null) {
+                this.territoryManager.saveAllData();
+            }
             
-            // Initialize core managers
-            this.countryManager = new CountryManager(this);
-            this.territoryManager = new TerritoryManager(this);
-            this.economyManager = new EconomyManager(this);
-            this.marketManager = new MarketManager(this);
-            this.diplomacyManager = new DiplomacyManager(this);
-            this.guiManager = new GUIManager(this);
+            if (this.economyManager != null) {
+                this.economyManager.saveAllData();
+                this.economyManager.shutdown();
+            }
             
-            // Load data
-            this.dataManager.loadAllData();
+            // Shutdown trading manager
+            if (this.tradingManager != null) {
+                this.tradingManager.shutdown();
+            }
             
-            // Register commands
-            this.registerCommands();
+            // Close database connections
+            if (this.databaseManager != null) {
+                this.databaseManager.shutdown();
+            }
             
-            // Register listeners
-            this.registerListeners();
+            // Stop particle effects
+            if (this.particleManager != null) {
+                this.particleManager.stopAllEffects();
+            }
             
-            // Start scheduled tasks
-            this.startScheduledTasks();
-            
-            return true;
+            this.getLogger().info("Countries plugin has been disabled successfully!");
             
         } catch (final Exception exception) {
-            this.getLogger().severe("Error during plugin initialization: " + exception.getMessage());
+            this.getLogger().severe("Error during plugin shutdown: " + exception.getMessage());
             exception.printStackTrace();
-            return false;
         }
+        
+        instance = null;
     }
     
     /**
-     * Register all plugin commands.
+     * Initialize core systems (config, database)
      */
-    private void registerCommands() {
-        final CountryCommand countryCommand = new CountryCommand(this);
-        final TerritoryCommand territoryCommand = new TerritoryCommand(this);
-        final EconomyCommand economyCommand = new EconomyCommand(this);
-        final MarketCommand marketCommand = new MarketCommand(this);
-        final DiplomacyCommand diplomacyCommand = new DiplomacyCommand(this);
+    private void initializeCore() {
+        this.getLogger().info("Initializing core systems...");
         
-        this.getCommand("country").setExecutor(countryCommand);
-        this.getCommand("country").setTabCompleter(countryCommand);
+        // Initialize configuration manager
+        this.configManager = new ConfigManager(this);
+        this.configManager.loadConfigurations();
         
-        this.getCommand("territory").setExecutor(territoryCommand);
-        this.getCommand("territory").setTabCompleter(territoryCommand);
+        // Initialize database
+        this.databaseManager = new DatabaseManager(this);
+        this.databaseManager.initialize();
+        this.databaseManager.runMigrations();
         
-        this.getCommand("economy").setExecutor(economyCommand);
-        this.getCommand("economy").setTabCompleter(economyCommand);
-        
-        this.getCommand("market").setExecutor(marketCommand);
-        this.getCommand("market").setTabCompleter(marketCommand);
-        
-        this.getCommand("diplomacy").setExecutor(diplomacyCommand);
-        this.getCommand("diplomacy").setTabCompleter(diplomacyCommand);
+        this.getLogger().info("Core systems initialized successfully!");
     }
     
     /**
-     * Register all event listeners.
+     * Initialize feature managers
      */
-    private void registerListeners() {
-        this.getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
-        this.getServer().getPluginManager().registerEvents(new ChunkListener(this), this);
-        this.getServer().getPluginManager().registerEvents(new GUIListener(this), this);
+    private void initializeFeatures() {
+        this.getLogger().info("Initializing feature managers...");
+        
+        this.countryManager = new CountryManager(this);
+        this.territoryManager = new TerritoryManager(this);
+        this.economyManager = new EconomyManager(this);
+        this.tradingManager = new TradingManager(this);
+        this.diplomacyManager = new DiplomacyManager(this);
+        this.legalManager = new LegalManager(this);
+        
+        // Initialize all managers
+        this.countryManager.initialize();
+        this.territoryManager.initialize();
+        this.economyManager.initialize();
+        this.tradingManager.initialize();
+        this.diplomacyManager.initialize();
+        this.legalManager.initialize();
+        
+        this.getLogger().info("Feature managers initialized successfully!");
     }
     
     /**
-     * Start scheduled tasks for the plugin.
+     * Initialize UI and interaction systems
      */
-    private void startScheduledTasks() {
-        final int autoSaveInterval = this.configManager.getConfig().getInt("general.auto-save-interval", 300) * 20; // Convert to ticks
+    private void initializeInteraction() {
+        this.getLogger().info("Initializing interaction systems...");
         
-        // Auto-save task
-        this.getServer().getScheduler().runTaskTimerAsynchronously(this, () -> {
-            if (this.dataManager != null) {
-                this.dataManager.saveAllData();
+        this.guiManager = new GuiManager(this);
+        this.chatManager = new ChatManager(this);
+        this.particleManager = new ParticleManager(this);
+        
+        this.guiManager.initialize();
+        this.chatManager.initialize();
+        this.particleManager.initialize();
+        
+        this.getLogger().info("Interaction systems initialized successfully!");
+    }
+    
+    /**
+     * Initialize commands and event listeners
+     */
+    private void initializeCommandsAndListeners() {
+        this.getLogger().info("Initializing commands and listeners...");
+        
+        // Initialize command manager
+        this.commandManager = new CommandManager(this);
+        this.commandManager.registerCommands();
+        
+        // Register event listeners
+        this.getServer().getPluginManager().registerEvents(new PlayerEventListener(this), this);
+        this.getServer().getPluginManager().registerEvents(new BlockEventListener(this), this);
+        this.getServer().getPluginManager().registerEvents(new ChatEventListener(this), this);
+        this.getServer().getPluginManager().registerEvents(new EconomyEventListener(this), this);
+        
+        this.getLogger().info("Commands and listeners initialized successfully!");
+    }
+    
+    /**
+     * Setup external integrations (Vault, PlaceholderAPI, etc.)
+     */
+    private void setupIntegrations() {
+        this.getLogger().info("Setting up external integrations...");
+        
+        // Setup Vault economy integration
+        if (this.getServer().getPluginManager().getPlugin("Vault") != null) {
+            final RegisteredServiceProvider<Economy> rsp = this.getServer().getServicesManager().getRegistration(Economy.class);
+            if (rsp != null) {
+                this.vaultEconomy = rsp.getProvider();
+                this.getLogger().info("Vault economy integration enabled!");
+            } else {
+                this.getLogger().warning("Vault found but no economy provider available!");
             }
-        }, autoSaveInterval, autoSaveInterval);
+        } else {
+            this.getLogger().warning("Vault not found - economy features may be limited!");
+        }
         
-        // Tax collection task
-        final int taxInterval = this.configManager.getConfig().getInt("economy.tax-collection-interval", 86400) * 20; // Convert to ticks
-        this.getServer().getScheduler().runTaskTimerAsynchronously(this, () -> {
-            if (this.economyManager != null) {
-                this.economyManager.collectTaxes();
-            }
-        }, taxInterval, taxInterval);
+        // Setup PlaceholderAPI integration if available
+        if (this.getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            // TODO: Initialize PlaceholderAPI integration
+            this.getLogger().info("PlaceholderAPI integration available!");
+        }
         
-        // Market cleanup task (remove expired listings)
-        this.getServer().getScheduler().runTaskTimerAsynchronously(this, () -> {
-            if (this.marketManager != null) {
-                this.marketManager.cleanupExpiredListings();
-            }
-        }, 72000, 72000); // Every hour
+        // Setup WorldEdit integration if available
+        if (this.getServer().getPluginManager().getPlugin("WorldEdit") != null) {
+            // TODO: Initialize WorldEdit integration for territory selection
+            this.getLogger().info("WorldEdit integration available!");
+        }
+        
+        // Setup Dynmap integration if available
+        if (this.getServer().getPluginManager().getPlugin("dynmap") != null) {
+            // TODO: Initialize Dynmap integration for territory visualization
+            this.getLogger().info("Dynmap integration available!");
+        }
+        
+        this.getLogger().info("External integrations setup complete!");
     }
     
     /**
-     * Reload the plugin configuration and data.
-     * 
-     * @return true if reload was successful, false otherwise
+     * Check if Vault economy is available
+     * @return true if Vault economy is available
      */
-    public boolean reloadPlugin() {
+    public boolean hasVaultEconomy() {
+        return this.vaultEconomy != null;
+    }
+    
+    /**
+     * Reload the plugin configuration and data
+     */
+    public void reload() {
+        this.getLogger().info("Reloading Countries plugin...");
+        
         try {
             // Reload configurations
-            if (!this.configManager.loadConfigs()) {
-                return false;
-            }
+            this.configManager.loadConfigurations();
             
-            // Reload data
-            this.dataManager.loadAllData();
+            // Reload managers that support it
+            this.countryManager.reload();
+            this.territoryManager.reload();
+            this.economyManager.reload();
             
-            ChatUtils.sendMessage(this.getServer().getConsoleSender(), 
-                this.configManager.getMessage("admin.reloaded"));
-            
-            return true;
+            this.getLogger().info("Countries plugin reloaded successfully!");
             
         } catch (final Exception exception) {
             this.getLogger().severe("Error during plugin reload: " + exception.getMessage());
             exception.printStackTrace();
-            return false;
         }
-    }
-    
-    /**
-     * Get a message from the messages configuration.
-     * 
-     * @param path the message path
-     * @return the formatted message
-     */
-    @NotNull
-    public String getMessage(@NotNull final String path) {
-        return this.configManager.getMessage(path);
-    }
-    
-    /**
-     * Get a message from the messages configuration with placeholders.
-     * 
-     * @param path the message path
-     * @param placeholders the placeholders to replace
-     * @return the formatted message with placeholders replaced
-     */
-    @NotNull
-    public String getMessage(@NotNull final String path, @NotNull final String... placeholders) {
-        return this.configManager.getMessage(path, placeholders);
     }
 }
