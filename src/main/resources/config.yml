@@ -1,0 +1,172 @@
+# Countries Plugin Configuration
+
+# General Settings
+general:
+  # Enable debug messages in console
+  debug: false
+  
+  # Language file to use (without .yml extension)
+  language: "en"
+  
+  # Auto-save data interval in seconds
+  auto-save-interval: 300
+  
+  # Maximum number of countries a player can create/own
+  max-countries-per-player: 1
+  
+  # Enable country deletion after inactivity (days, 0 to disable)
+  country-inactivity-deletion: 30
+
+# Country Settings
+country:
+  # Minimum and maximum length for country names
+  name-length-min: 3
+  name-length-max: 20
+  
+  # Cost to create a country
+  creation-cost: 5000.0
+  
+  # Starting balance for new countries
+  starting-balance: 10000.0
+  
+  # Maximum number of citizens per country
+  max-citizens: 50
+  
+  # Default government type for new countries
+  default-government: "DEMOCRACY"
+
+# Territory Settings
+territory:
+  # Cost per chunk to claim territory
+  chunk-claim-cost: 100.0
+  
+  # Maximum chunks per territory
+  max-chunks-per-territory: 100
+  
+  # Maximum territories per country
+  max-territories-per-country: 10
+  
+  # Allow claiming in wilderness only
+  wilderness-claims-only: true
+  
+  # Minimum distance between country territories
+  min-territory-distance: 5
+  
+  # Enable visual territory boundaries
+  show-boundaries: true
+
+# Economy Settings
+economy:
+  # Starting balance for new players
+  starting-balance: 1000.0
+  
+  # Tax collection interval in seconds
+  tax-collection-interval: 86400
+  
+  # Default tax rate (0.05 = 5%)
+  default-tax-rate: 0.05
+  
+  # Maximum tax rate allowed
+  max-tax-rate: 0.25
+  
+  # Enable salary system
+  enable-salaries: true
+  
+  # Default salary amounts by role
+  default-salaries:
+    LEADER: 500.0
+    MINISTER: 300.0
+    OFFICER: 200.0
+    CITIZEN: 100.0
+
+# Market Settings
+market:
+  # Fee to list an item (fixed amount)
+  listing-fee: 10.0
+  
+  # Transaction fee percentage (0.02 = 2%)
+  transaction-fee: 0.02
+  
+  # Maximum listings per player
+  max-listings-per-player: 10
+  
+  # Listing duration in hours
+  listing-duration: 168
+  
+  # Enable item inspection
+  enable-inspection: true
+
+# Diplomacy Settings
+diplomacy:
+  # Cost to form an alliance
+  alliance-cost: 5000.0
+  
+  # Cost to declare war
+  war-declaration-cost: 10000.0
+  
+  # War duration in hours before auto-peace
+  war-duration: 168
+  
+  # Enable trade agreements
+  enable-trade-agreements: true
+  
+  # Trade agreement duration in days
+  trade-agreement-duration: 30
+
+# Law Settings
+law:
+  # Enable law enforcement system
+  enable-laws: true
+  
+  # Maximum laws per country
+  max-laws-per-country: 20
+  
+  # Enable arrests and fines
+  enable-arrests: true
+  
+  # Maximum fine amount
+  max-fine-amount: 10000.0
+  
+  # Jail time in minutes for arrests
+  default-jail-time: 15
+
+# GUI Settings
+gui:
+  # GUI update interval in ticks
+  update-interval: 20
+  
+  # Enable GUI sounds
+  enable-sounds: true
+  
+  # GUI titles
+  titles:
+    country: "&6&lCountry Management"
+    territory: "&a&lTerritory Management"
+    economy: "&2&lEconomy Management"
+    market: "&e&lGlobal Market"
+    diplomacy: "&9&lDiplomacy Center"
+
+# Storage Settings
+storage:
+  # Data file format (JSON)
+  format: "JSON"
+  
+  # Enable data compression
+  compression: false
+  
+  # Backup interval in hours
+  backup-interval: 24
+  
+  # Number of backups to keep
+  max-backups: 7
+
+# Integration Settings
+integration:
+  # Enable Vault integration for economy
+  vault: true
+  
+  # Enable WorldGuard integration
+  worldguard: true
+  
+  # Enable PlaceholderAPI integration
+  placeholderapi: true

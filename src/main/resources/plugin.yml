@@ -1,0 +1,103 @@
+name: Countries
+version: '${project.version}'
+description: A comprehensive countries management plugin for Minecraft
+main: xyz.inv1s1bl3.countries.CountriesPlugin
+api-version: 1.20
+author: inv1s1bl3
+website: https://github.com/inv1s1bl3/countries
+
+commands:
+  country:
+    description: Main country management command
+    usage: /country <subcommand>
+    aliases: [c, nation, n]
+    permission: countries.country.use
+  territory:
+    description: Territory management command
+    usage: /territory <subcommand>
+    aliases: [t, land, claim]
+    permission: countries.territory.use
+  economy:
+    description: Economy management command
+    usage: /economy <subcommand>
+    aliases: [eco, money, bank]
+    permission: countries.economy.use
+  market:
+    description: Market trading command
+    usage: /market <subcommand>
+    aliases: [m, trade, shop]
+    permission: countries.market.use
+  diplomacy:
+    description: Diplomacy management command
+    usage: /diplomacy <subcommand>
+    aliases: [dip, relations, ally]
+    permission: countries.diplomacy.use
+
+permissions:
+  countries.*:
+    description: Gives access to all Countries features
+    default: op
+    children:
+      countries.country.*: true
+      countries.territory.*: true
+      countries.economy.*: true
+      countries.market.*: true
+      countries.diplomacy.*: true
+      countries.law.*: true
+      countries.admin.*: true
+      
+  countries.country.*:
+    description: All country permissions
+    default: true
+    children:
+      countries.country.use: true
+      countries.country.create: true
+      countries.country.join: true
+      countries.country.leave: true
+      countries.country.invite: true
+      countries.country.kick: true
+      countries.country.manage: true
+      
+  countries.territory.*:
+    description: All territory permissions
+    default: true
+    children:
+      countries.territory.use: true
+      countries.territory.claim: true
+      countries.territory.unclaim: true
+      countries.territory.manage: true
+      
+  countries.economy.*:
+    description: All economy permissions
+    default: true
+    children:
+      countries.economy.use: true
+      countries.economy.pay: true
+      countries.economy.balance: true
+      countries.economy.manage: true
+      
+  countries.market.*:
+    description: All market permissions
+    default: true
+    children:
+      countries.market.use: true
+      countries.market.list: true
+      countries.market.buy: true
+      countries.market.search: true
+      
+  countries.diplomacy.*:
+    description: All diplomacy permissions
+    default: true
+    children:
+      countries.diplomacy.use: true
+      countries.diplomacy.ally: true
+      countries.diplomacy.war: true
+      countries.diplomacy.trade: true
+      
+  countries.admin.*:
+    description: Administrative permissions
+    default: op
+    children:
+      countries.admin.reload: true
+      countries.admin.debug: true
+      countries.admin.backup: true

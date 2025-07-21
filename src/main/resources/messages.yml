@@ -1,0 +1,175 @@
+# Countries Plugin Messages
+# Use & for color codes, {variable} for placeholders
+
+# General Messages
+general:
+  no-permission: "&cYou don't have permission to use this command!"
+  player-only: "&cThis command can only be used by players!"
+  unknown-command: "&cUnknown command! Use /help for available commands."
+  invalid-syntax: "&cInvalid syntax! Usage: {usage}"
+  player-not-found: "&cPlayer '{player}' not found!"
+  insufficient-funds: "&cYou need {amount} to do this!"
+  success: "&aAction completed successfully!"
+
+# Country Messages
+country:
+  created: "&aCountry '{country}' has been created successfully!"
+  create-failed: "&cFailed to create country '{country}'. It may already exist."
+  not-found: "&cCountry '{country}' not found!"
+  already-exists: "&cA country with that name already exists!"
+  deleted: "&cCountry '{country}' has been deleted!"
+  
+  joined: "&aYou have joined {country}!"
+  left: "&aYou have left {country}!"
+  kicked: "&cYou have been kicked from {country}!"
+  invite-sent: "&aInvitation sent to {player}!"
+  invite-received: "&aYou have been invited to join {country}! Use /country accept to join."
+  
+  already-member: "&cYou are already a member of a country!"
+  not-member: "&cYou are not a member of any country!"
+  cant-leave-leader: "&cYou cannot leave as the country leader! Transfer leadership first."
+  
+  promoted: "&aYou have been promoted to {role} in {country}!"
+  demoted: "&aYou have been demoted to {role} in {country}!"
+  
+  already-highest-rank: "&cPlayer is already at the highest rank!"
+  already-lowest-rank: "&cPlayer is already at the lowest rank!"
+  
+  info-header: "&6&l=== {country} Information ==="
+  info-leader: "&eLeader: &f{leader}"
+  info-government: "&eGovernment: &f{government}"
+  info-citizens: "&eCitizens: &f{citizens}/{max}"
+  info-balance: "&eBalance: &f${balance}"
+  info-territories: "&eTerritories: &f{territories}"
+  info-founded: "&eFounded: &f{date}"
+
+# Territory Messages
+territory:
+  created: "&aTerritory '{territory}' created successfully!"
+  create-failed: "&cFailed to create territory '{territory}'! {reason}"
+  deleted: "&aTerritory '{territory}' has been deleted!"
+  not-found: "&cTerritory '{territory}' not found!"
+  
+  claimed: "&aTerritory '{territory}' claimed successfully!"
+  unclaimed: "&aTerritory unclaimed successfully!"
+  claim-failed: "&cFailed to claim territory! {reason}"
+  already-claimed: "&cThis chunk is already claimed!"
+  not-claimed: "&cThis chunk is not claimed!"
+  
+  protected: "&cThis area is protected by {country}!"
+  entering: "&aEntering {territory} ({country})"
+  leaving: "&aLeaving {territory}"
+  
+  insufficient-funds: "&cYour country needs ${cost} to claim this territory!"
+  max-territories: "&cYour country has reached the maximum number of territories!"
+  too-close: "&cThis territory is too close to another country's territory!"
+  
+  info-name: "&eName: &f{name}"
+  info-type: "&eType: &f{type}"
+  info-owner: "&eOwner: &f{country}"
+  info-size: "&eSize: &f{chunks} chunks"
+
+# Economy Messages
+economy:
+  balance-self: "&aYour balance: &f${balance}"
+  balance-other: "&a{player}'s balance: &f${balance}"
+  country-balance: "&a{country} balance: &f${balance}"
+  
+  payment-sent: "&aYou sent ${amount} to {player}!"
+  payment-received: "&aYou received ${amount} from {player}!"
+  
+  tax-collected: "&aTax collected: ${amount} from {citizens} citizens"
+  tax-paid: "&cTax paid: ${amount} to {country}"
+  tax-rate-set: "&aTax rate set to {rate}% for {country}"
+  
+  salary-received: "&aYou received your salary: ${amount}"
+  salary-set: "&aSalary for {role} set to ${amount}"
+  
+  transaction-log: "&7[{time}] {type}: ${amount} ({description})"
+
+# Market Messages
+market:
+  listed: "&aItem listed for ${price}! ID: {id}"
+  unlisted: "&aItem unlisted successfully!"
+  purchased: "&aYou purchased {item} for ${price}!"
+  sold: "&aYour {item} was sold for ${price}!"
+  
+  listing-not-found: "&cListing #{id} not found or expired!"
+  already-own: "&cYou cannot buy your own listing!"
+  listing-expired: "&cThis listing has expired!"
+  
+  search-results: "&aFound {count} listings for '{query}':"
+  search-item: "&7#{id} - {item} x{amount} - ${price} by {seller}"
+  no-results: "&cNo listings found for '{query}'"
+
+# Diplomacy Messages
+diplomacy:
+  alliance-proposed: "&aAlliance proposed to {country}!"
+  alliance-accepted: "&a{country1} and {country2} are now allies!"
+  alliance-rejected: "&c{country} rejected your alliance proposal!"
+  alliance-broken: "&cAlliance between {country1} and {country2} has ended!"
+  
+  war-declared: "&c{country1} has declared war on {country2}!"
+  war-ended: "&aWar between {country1} and {country2} has ended!"
+  
+  relation-set: "&aRelation with {country} set to {relation}!"
+  relation-info: "&eRelation with {country}: &f{relation}"
+  
+  trade-proposed: "&aTrade agreement proposed to {country}!"
+  trade-accepted: "&aTrade agreement with {country} is now active!"
+  trade-expired: "&cTrade agreement with {country} has expired!"
+
+# Law Messages
+law:
+  created: "&aLaw '{law}' created successfully!"
+  removed: "&aLaw '{law}' removed!"
+  crime-reported: "&cCrime reported: {crime} by {player}"
+  arrested: "&cYou have been arrested for {crime}! Fine: ${fine}"
+  
+  warrant-issued: "&cArrest warrant issued for {player}"
+  fine-paid: "&aYou paid a fine of ${amount} for {crime}"
+  jail-time: "&cYou are jailed for {minutes} minutes!"
+  
+  law-list: "&eLaws in {country}:"
+  law-item: "&7- {law} (Fine: ${fine})"
+
+# GUI Messages
+gui:
+  previous-page: "&ePrevious Page"
+  next-page: "&eNext Page"
+  close: "&cClose"
+  back: "&7Back"
+  
+  click-to-select: "&aClick to select"
+  click-to-manage: "&aClick to manage"
+  click-to-buy: "&aClick to buy"
+  click-to-accept: "&aClick to accept"
+  click-to-reject: "&cClick to reject"
+  
+  loading: "&7Loading..."
+  no-data: "&7No data available"
+
+# Error Messages
+error:
+  command-error: "&cAn error occurred while executing the command!"
+  data-save-failed: "&cFailed to save data! Please contact an administrator."
+  data-load-failed: "&cFailed to load data! Please contact an administrator."
+  
+  country-not-loaded: "&cCountry data not loaded! Please try again later."
+  player-data-corrupted: "&cYour player data may be corrupted! Please contact an administrator."
+  
+  gui-error: "&cAn error occurred while opening the GUI!"
+  permission-error: "&cYou don't have permission to do this!"
+
+# Admin Messages
+admin:
+  reloaded: "&aCountries plugin reloaded successfully!"
+  backup-created: "&aBackup created successfully!"
+  debug-enabled: "&aDebug mode enabled!"
+  debug-disabled: "&aDebug mode disabled!"
+  
+  data-export: "&aData exported to {file}!"
+  data-import: "&aData imported from {file}!"
+  
+  force-save: "&aForced data save completed!"
+  cache-cleared: "&aCache cleared successfully!"
