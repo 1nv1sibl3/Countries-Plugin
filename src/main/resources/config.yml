@@ -60,6 +60,19 @@ economy:
   # Starting balance for new players
   starting-balance: 1000.0
   
+  # Minimum taxable balance
+  min-taxable-balance: 100.0
+  
+  # Minimum and maximum tax amounts
+  min-tax-amount: 1.0
+  max-tax-amount: 1000.0
+  
+  # Maximum payment amount per transaction
+  max-payment-amount: 10000.0
+  
+  # Maximum salary amount per role
+  max-salary-amount: 1000.0
+  
   # Tax collection interval in seconds
   tax-collection-interval: 86400
   
@@ -71,6 +84,9 @@ economy:
   
   # Enable salary system
   enable-salaries: true
+  
+  # Account inactivity cleanup (days, 0 to disable)
+  account-inactivity-cleanup: 90
   
   # Default salary amounts by role
   default-salaries:

@@ -86,6 +86,17 @@ economy:
   salary-set: "&aSalary for {role} set to ${amount}"
   
   transaction-log: "&7[{time}] {type}: ${amount} ({description})"
+  
+  insufficient-balance: "&cInsufficient balance! You need ${amount}."
+  invalid-amount: "&cInvalid amount! Please enter a positive number."
+  payment-limit-exceeded: "&cPayment amount exceeds the maximum limit of ${limit}!"
+  
+  account-frozen: "&cYour account is frozen and cannot perform transactions!"
+  account-inactive: "&cYour account is inactive!"
+  
+  tax-burden-info: "&eTotal tax burden for {country}: &f${amount}"
+  salary-cost-info: "&eTotal salary cost for {country}: &f${amount}"
+  cannot-afford-salaries: "&cYour country cannot afford to pay all salaries!"
 
 # Market Messages
 market:

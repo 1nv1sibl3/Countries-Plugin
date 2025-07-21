@@ -7,6 +7,8 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import xyz.inv1s1bl3.countries.CountriesPlugin;
 import xyz.inv1s1bl3.countries.core.country.Country;
+import xyz.inv1s1bl3.countries.core.economy.BankAccount;
+import xyz.inv1s1bl3.countries.core.economy.Transaction;
 import xyz.inv1s1bl3.countries.core.territory.Territory;
 
 import java.io.File;
@@ -37,6 +39,7 @@ public final class DataManager {
     // Data files
     private final File countriesFile;
     private final File territoriesFile;
+    private final File economyFile;
     
     public DataManager(@NotNull final CountriesPlugin plugin) {
         this.plugin = plugin;
@@ -57,6 +60,7 @@ public final class DataManager {
         // Initialize data files
         this.countriesFile = new File(this.dataFolder, "countries.json");
         this.territoriesFile = new File(this.dataFolder, "territories.json");
+        this.economyFile = new File(this.dataFolder, "economy.json");
     }
     
     /**
@@ -65,6 +69,7 @@ public final class DataManager {
     public void loadAllData() {
         this.loadCountryData();
         this.loadTerritoryData();
+        this.loadEconomyData();
         
         this.plugin.getLogger().info("All data loaded successfully!");
     }
@@ -75,6 +80,7 @@ public final class DataManager {
     public void saveAllData() {
         this.saveCountryData();
         this.saveTerritoryData();
+        this.saveEconomyData();
         
         if (this.plugin.getConfigManager().isDebugEnabled()) {
             this.plugin.getLogger().info("All data saved successfully!");
@@ -170,6 +176,70 @@ public final class DataManager {
     }
     
     /**
+     * Load economy data from file.
+     */
+    public void loadEconomyData() {
+        if (!this.economyFile.exists()) {
+            this.plugin.getLogger().info("Economy data file not found, starting with empty data.");
+            return;
+        }
+        
+        try (final FileReader reader = new FileReader(this.economyFile)) {
+            final Type type = new TypeToken<Map<String, Object>>(){}.getType();
+            final Map<String, Object> economyData = this.gson.fromJson(reader, type);
+            
+            if (economyData != null) {
+                // Load accounts
+                final Type accountType = new TypeToken<Map<UUID, BankAccount>>(){}.getType();
+                final Map<UUID, BankAccount> accounts = this.gson.fromJson(
+                    this.gson.toJson(economyData.get("accounts")), accountType);
+                
+                // Load transactions
+                final Type transactionType = new TypeToken<List<Transaction>>(){}.getType();
+                final List<Transaction> transactions = this.gson.fromJson(
+                    this.gson.toJson(economyData.get("transactions")), transactionType);
+                
+                this.plugin.getEconomyManager().loadEconomyData(
+                    accounts != null ? accounts : new HashMap<>(),
+                    transactions != null ? transactions : new ArrayList<>()
+                );
+                
+                this.plugin.getLogger().info("Loaded economy data: " + 
+                    (accounts != null ? accounts.size() : 0) + " accounts, " +
+                    (transactions != null ? transactions.size() : 0) + " transactions.");
+            }
+            
+        } catch (final IOException exception) {
+            this.plugin.getLogger().severe("Failed to load economy data: " + exception.getMessage());
+            exception.printStackTrace();
+        }
+    }
+    
+    /**
+     * Save economy data to file.
+     */
+    public void saveEconomyData() {
+        CompletableFuture.runAsync(() -> {
+            try (final FileWriter writer = new FileWriter(this.economyFile)) {
+                final Map<String, Object> economyData = new HashMap<>();
+                economyData.put("accounts", this.plugin.getEconomyManager().getAccounts());
+                economyData.put("transactions", this.plugin.getEconomyManager().getGlobalTransactionLog());
+                economyData.put("last_save", LocalDateTime.now());
+                
+                this.gson.toJson(economyData, writer);
+                
+                if (this.plugin.getConfigManager().isDebugEnabled()) {
+                    this.plugin.getLogger().info("Saved economy data to file.");
+                }
+                
+            } catch (final IOException exception) {
+                this.plugin.getLogger().severe("Failed to save economy data: " + exception.getMessage());
+                exception.printStackTrace();
+            }
+        });
+    }
+    
+    /**
      * Create a backup of all data files.
      * 
      * @return true if backup was created successfully
@@ -208,6 +278,10 @@ public final class DataManager {
             final Map<String, Object> exportData = new HashMap<>();
             exportData.put("countries", this.plugin.getCountryManager().getCountries());
             exportData.put("territories", this.plugin.getTerritoryManager().getTerritories());
+            exportData.put("economy", Map.of(
+                "accounts", this.plugin.getEconomyManager().getAccounts(),
+                "transactions", this.plugin.getEconomyManager().getGlobalTransactionLog()
+            ));
             exportData.put("export_time", LocalDateTime.now());
             exportData.put("plugin_version", this.plugin.getDescription().getVersion());
             
@@ -254,6 +328,21 @@ public final class DataManager {
                         this.plugin.getTerritoryManager().loadTerritoryData(territoryData);
                     }
                     
+                    if (importData.containsKey("economy")) {
+                        @SuppressWarnings("unchecked")
+                        final Map<String, Object> economyImportData = (Map<String, Object>) importData.get("economy");
+                        
+                        @SuppressWarnings("unchecked")
+                        final Map<UUID, BankAccount> accounts = (Map<UUID, BankAccount>) economyImportData.get("accounts");
+                        @SuppressWarnings("unchecked")
+                        final List<Transaction> transactions = (List<Transaction>) economyImportData.get("transactions");
+                        
+                        this.plugin.getEconomyManager().loadEconomyData(
+                            accounts != null ? accounts : new HashMap<>(),
+                            transactions != null ? transactions : new ArrayList<>()
+                        );
+                    }
+                    
                     this.plugin.getLogger().info("Data imported from: " + fileName);
                     return true;
                 }
@@ -279,6 +368,7 @@ public final class DataManager {
         stats.put("data_folder_size", this.calculateFolderSize(this.dataFolder));
         stats.put("countries_file_size", this.countriesFile.exists() ? this.countriesFile.length() : 0);
         stats.put("territories_file_size", this.territoriesFile.exists() ? this.territoriesFile.length() : 0);
+        stats.put("economy_file_size", this.economyFile.exists() ? this.economyFile.length() : 0);
         stats.put("last_save_time", LocalDateTime.now());
         
         return stats;
