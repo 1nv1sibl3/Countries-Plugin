@@ -51,5 +51,40 @@ public final class PlayerEventListener implements Listener {
         }
         
         this.plugin.getTerritoryManager().handlePlayerMovement(event.getPlayer(), event.getTo());
+        
+        // Check for territory entry notifications
+        this.handleTerritoryEntryNotification(event.getPlayer(), event.getTo());
+    }
+    
+    /**
+     * Handle territory entry notifications
+     * @param player Player entering territory
+     * @param location Location entered
+     */
+    private void handleTerritoryEntryNotification(final org.bukkit.entity.Player player, final org.bukkit.Location location) {
+        final var territoryOpt = this.plugin.getTerritoryManager().getTerritoryAt(location);
+        
+        if (territoryOpt.isPresent()) {
+            final var territory = territoryOpt.get();
+            final var countryOpt = this.plugin.getCountryManager().getCountry(territory.getCountryId());
+            
+            if (countryOpt.isPresent()) {
+                final var country = countryOpt.get();
+                
+                // Check if player is entering their own country's territory
+                final var playerDataOpt = this.plugin.getCountryManager().getPlayer(player.getUniqueId());
+                
+                if (playerDataOpt.isPresent() && playerDataOpt.get().hasCountry() && 
+                    playerDataOpt.get().getCountryId().equals(territory.getCountryId())) {
+                    // Entering own territory
+                    xyz.inv1s1bl3.countries.utils.MessageUtil.sendInfo(player, 
+                        "Entering " + country.getName() + " territory (" + territory.getTerritoryType() + ")");
+                } else {
+                    // Entering foreign territory
+                    xyz.inv1s1bl3.countries.utils.MessageUtil.sendWarning(player, 
+                        "Entering " + country.getName() + " territory - respect local laws!");
+                }
+            }
+        }
     }
 }

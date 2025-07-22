@@ -77,7 +77,7 @@ public final class TerritoryService {
         
         // Calculate claim cost
         final double baseCost = this.plugin.getConfigManager().getBaseChunkPrice();
-        final double claimCost = this.calculateClaimCost(country, chunk, baseCost);
+        final double claimCost = this.calculateClaimCost(country, chunk, baseCost, type);
         
         // Check if country has enough money
         // Check if player has enough money (use Vault for actual balance)
@@ -368,10 +368,11 @@ public final class TerritoryService {
      * @param country Country claiming
      * @param chunk Chunk to claim
      * @param baseCost Base cost per chunk
+     * @param territoryType Territory type being claimed
      * @return Calculated cost
      */
-    private double calculateClaimCost(final Country country, final Chunk chunk, final double baseCost) {
-        double cost = baseCost;
+    private double calculateClaimCost(final Country country, final Chunk chunk, final double baseCost, final TerritoryType territoryType) {
+        double cost = baseCost * territoryType.getCreationCost() / 100.0; // Territory type multiplier
         
         // Distance multiplier from capital
         if (country.hasCapital()) {
@@ -391,6 +392,21 @@ public final class TerritoryService {
                 
                 cost *= Math.pow(distanceMultiplier, distance / 1000.0); // Per 1000 blocks
             }
+        }
+        
+        // Country size multiplier (more territories = higher cost)
+        final List<Territory> existingTerritories = this.territoryRepository.findByCountryId(country.getId());
+        final double sizeMultiplier = 1.0 + (existingTerritories.size() * 0.05); // 5% increase per territory
+        cost *= sizeMultiplier;
+        
+        // Economic health modifier
+        final double economicHealth = this.plugin.getEconomyManager().getEconomyIntegration()
+            .calculateCountryEconomicHealth(country.getId());
+        
+        if (economicHealth < 0.3) {
+            cost *= 1.5; // 50% penalty for poor economic health
+        } else if (economicHealth > 0.8) {
+            cost *= 0.9; // 10% discount for excellent economic health
         }
         
         return Math.round(cost * 100.0) / 100.0; // Round to 2 decimal places

@@ -102,9 +102,12 @@ public final class EconomyIntegration {
             double treasuryScore = Math.min(1.0, country.getTreasuryBalance() / 50000.0); // Max score at $50k
             double memberWealthScore = this.calculateAverageMemberWealth(members) / 10000.0; // Max score at $10k average
             double incomeScore = this.calculateCountryIncomeScore(countryId);
+            double maintenanceScore = this.calculateMaintenanceScore(countryId);
+            double growthScore = this.calculateGrowthScore(countryId);
             
-            // Weighted average
-            return (treasuryScore * 0.4) + (memberWealthScore * 0.3) + (incomeScore * 0.3);
+            // Weighted average with new factors
+            return (treasuryScore * 0.25) + (memberWealthScore * 0.2) + (incomeScore * 0.25) + 
+                   (maintenanceScore * 0.15) + (growthScore * 0.15);
             
         } catch (final Exception exception) {
             this.plugin.getLogger().log(Level.WARNING, "Failed to calculate economic health for country " + countryId, exception);
@@ -159,6 +162,50 @@ public final class EconomyIntegration {
     }
     
     /**
+     * Calculate maintenance score based on ability to pay territory maintenance
+     * @param countryId Country ID
+     * @return Maintenance score (0.0 to 1.0)
+     */
+    private double calculateMaintenanceScore(final Integer countryId) {
+        final Optional<Country> countryOpt = this.plugin.getCountryManager().getCountry(countryId);
+        if (countryOpt.isEmpty()) {
+            return 0.0;
+        }
+        
+        final Country country = countryOpt.get();
+        final double dailyMaintenance = this.plugin.getEconomyManager().calculateDailyMaintenanceCosts(countryId);
+        
+        if (dailyMaintenance == 0) {
+            return 1.0; // No maintenance costs
+        }
+        
+        // Calculate how many days of maintenance the treasury can cover
+        final double daysOfMaintenance = country.getTreasuryBalance() / dailyMaintenance;
+        
+        // Score based on days of coverage (30 days = perfect score)
+        return Math.min(1.0, daysOfMaintenance / 30.0);
+    }
+    
+    /**
+     * Calculate growth score based on recent economic activity
+     * @param countryId Country ID
+     * @return Growth score (0.0 to 1.0)
+     */
+    private double calculateGrowthScore(final Integer countryId) {
+        final double currentWeekIncome = this.transactionManager.calculateCountryIncome(countryId, 7);
+        final double previousWeekIncome = this.transactionManager.calculateCountryIncome(countryId, 14) - currentWeekIncome;
+        
+        if (previousWeekIncome <= 0) {
+            return currentWeekIncome > 0 ? 1.0 : 0.0;
+        }
+        
+        final double growthRate = (currentWeekIncome - previousWeekIncome) / previousWeekIncome;
+        
+        // Normalize growth rate to 0-1 scale
+        return Math.max(0.0, Math.min(1.0, 0.5 + (growthRate * 2.0))); // 0% growth = 0.5 score
+    }
+    
+    /**
      * Generate economic report for a country
      * @param countryId Country ID
      * @return Economic report
@@ -183,6 +230,10 @@ public final class EconomyIntegration {
                 .weeklyExpenses(this.transactionManager.calculateCountryExpenses(countryId, 7))
                 .economicHealth(this.calculateCountryEconomicHealth(countryId))
                 .taxRate(country.getTaxRate())
+                .territoryCount(this.plugin.getTerritoryManager().getCountryTerritories(countryId).size())
+                .territoryValue(this.plugin.getEconomyManager().calculateTerritoryValue(countryId))
+                .dailyMaintenanceCost(this.plugin.getEconomyManager().calculateDailyMaintenanceCosts(countryId))
+                .economicGrowthRate(this.calculateGrowthScore(countryId))
                 .build();
             
         } catch (final Exception exception) {
@@ -206,6 +257,10 @@ public final class EconomyIntegration {
         private double weeklyExpenses;
         private double economicHealth;
         private double taxRate;
+        private int territoryCount;
+        private double territoryValue;
+        private double dailyMaintenanceCost;
+        private double economicGrowthRate;
         
         public double getNetWeeklyIncome() {
             return this.weeklyIncome - this.weeklyExpenses;
@@ -217,6 +272,21 @@ public final class EconomyIntegration {
             if (this.economicHealth >= 0.4) return "Fair";
             if (this.economicHealth >= 0.2) return "Poor";
             return "Critical";
+        }
+        
+        public String getGrowthRating() {
+            if (this.economicGrowthRate >= 0.7) return "Rapid Growth";
+            if (this.economicGrowthRate >= 0.6) return "Strong Growth";
+            if (this.economicGrowthRate >= 0.5) return "Stable";
+            if (this.economicGrowthRate >= 0.4) return "Declining";
+            return "Recession";
+        }
+        
+        public double getMaintenanceCoverageWeeks() {
+            if (this.dailyMaintenanceCost <= 0) {
+                return Double.MAX_VALUE;
+            }
+            return this.treasuryBalance / (this.dailyMaintenanceCost * 7);
         }
     }
 }

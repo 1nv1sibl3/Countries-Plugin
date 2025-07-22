@@ -264,6 +264,9 @@ public final class EconomyStatistics {
         private double monthlyExpenses;
         private double monthlyNetIncome;
         private double taxRate;
+        private int territoryCount;
+        private double territoryValue;
+        private double dailyMaintenanceCost;
         private Map<String, Double> expensesByCategory;
         private Map<String, Double> incomeByCategory;
         private LocalDateTime generatedAt;

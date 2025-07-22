@@ -576,6 +576,11 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                         MessageUtil.sendInfo(sender, "Weekly Net Income: " + 
                             this.plugin.getEconomyManager().formatMoney(stats.getWeeklyNetIncome()));
                         MessageUtil.sendInfo(sender, "Tax Rate: " + stats.getTaxRate() + "%");
+                        MessageUtil.sendInfo(sender, "Territory Count: " + stats.getTerritoryCount());
+                        MessageUtil.sendInfo(sender, "Territory Value: " + 
+                            this.plugin.getEconomyManager().formatMoney(stats.getTerritoryValue()));
+                        MessageUtil.sendInfo(sender, "Daily Maintenance: " + 
+                            this.plugin.getEconomyManager().formatMoney(stats.getDailyMaintenanceCost()));
                     }
                 }
                 default -> MessageUtil.sendError(sender, "Invalid audit type: " + auditType);

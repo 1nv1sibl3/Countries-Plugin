@@ -216,4 +216,34 @@ public final class ConfigManager {
     public boolean areVisualizationsEnabled() {
         return this.mainConfig.getBoolean("visualization.enabled", true);
     }
+    
+    // New economy configuration methods
+    
+    public double getWealthTaxThreshold() {
+        return this.mainConfig.getDouble("economy.wealth-tax-threshold", 100000.0);
+    }
+    
+    public double getWealthTaxRate() {
+        return this.mainConfig.getDouble("economy.wealth-tax-rate", 1.0);
+    }
+    
+    public double getPropertyTaxRate() {
+        return this.mainConfig.getDouble("economy.property-tax-rate", 0.5);
+    }
+    
+    public int getMaintenanceInterval() {
+        return this.mainConfig.getInt("territories.maintenance-interval", 24);
+    }
+    
+    public boolean isProgressiveTaxEnabled() {
+        return this.mainConfig.getBoolean("economy.progressive-tax", true);
+    }
+    
+    public boolean isBankruptcyEnabled() {
+        return this.mainConfig.getBoolean("economy.enable-bankruptcy", true);
+    }
+    
+    public double getBankruptcyThreshold() {
+        return this.mainConfig.getDouble("economy.bankruptcy-threshold", -1000.0);
+    }
 }

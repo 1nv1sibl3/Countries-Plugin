@@ -51,6 +51,8 @@ public final class EconomyCommand implements CommandExecutor, TabCompleter {
             case "treasury" -> this.handleTreasury(sender, args);
             case "stats" -> this.handleStats(sender, args);
             case "report" -> this.handleReport(sender, args);
+            case "bankruptcy" -> this.handleBankruptcy(sender, args);
+            case "maintenance" -> this.handleMaintenance(sender, args);
             case "help" -> this.sendHelpMessage(sender);
             default -> MessageUtil.sendMessage(sender, "general.invalid-command", 
                     Map.of("usage", "/economy help"));
@@ -494,7 +496,97 @@ public final class EconomyCommand implements CommandExecutor, TabCompleter {
             MessageUtil.sendInfo(sender, "Economic Health: " + report.getHealthRating() + 
                 " (" + String.format("%.1f%%", report.getEconomicHealth() * 100) + ")");
             MessageUtil.sendInfo(sender, "Tax Rate: " + report.getTaxRate() + "%");
+            MessageUtil.sendInfo(sender, "Territory Count: " + report.getTerritoryCount());
+            MessageUtil.sendInfo(sender, "Territory Value: " + 
+                this.plugin.getEconomyManager().formatMoney(report.getTerritoryValue()));
+            MessageUtil.sendInfo(sender, "Daily Maintenance: " + 
+                this.plugin.getEconomyManager().formatMoney(report.getDailyMaintenanceCost()));
+            MessageUtil.sendInfo(sender, "Growth Rating: " + report.getGrowthRating());
+            MessageUtil.sendInfo(sender, "Maintenance Coverage: " + 
+                String.format("%.1f weeks", report.getMaintenanceCoverageWeeks()));
         }
+    }
+    
+    private void handleBankruptcy(final CommandSender sender, final String[] args) {
+        if (!(sender instanceof Player player)) {
+            MessageUtil.sendError(sender, "This command can only be used by players!");
+            return;
+        }
+        
+        if (!PermissionUtil.hasCountryAdminPermissions(player)) {
+            MessageUtil.sendMessage(sender, "general.no-permission");
+            return;
+        }
+        
+        final Optional<xyz.inv1s1bl3.countries.database.entities.Player> playerDataOpt = 
+            this.plugin.getCountryManager().getPlayer(player.getUniqueId());
+        
+        if (playerDataOpt.isEmpty() || !playerDataOpt.get().hasCountry()) {
+            MessageUtil.sendMessage(sender, "country.not-in-country");
+            return;
+        }
+        
+        final xyz.inv1s1bl3.countries.database.entities.Player playerData = playerDataOpt.get();
+        final var report = this.plugin.getEconomyManager().generateCountryEconomicReport(playerData.getCountryId());
+        
+        if (report != null) {
+            MessageUtil.sendInfo(sender, "=== Bankruptcy Analysis ===");
+            MessageUtil.sendInfo(sender, "Treasury Balance: " + 
+                this.plugin.getEconomyManager().formatMoney(report.getTreasuryBalance()));
+            MessageUtil.sendInfo(sender, "Daily Maintenance: " + 
+                this.plugin.getEconomyManager().formatMoney(report.getDailyMaintenanceCost()));
+            MessageUtil.sendInfo(sender, "Coverage: " + 
+                String.format("%.1f weeks", report.getMaintenanceCoverageWeeks()));
+            
+            if (report.getMaintenanceCoverageWeeks() < 2) {
+                MessageUtil.sendWarning(sender, "WARNING: Your country may face bankruptcy soon!");
+                MessageUtil.sendInfo(sender, "Consider: Reducing expenses, increasing taxes, or selling territories");
+            } else if (report.getMaintenanceCoverageWeeks() < 4) {
+                MessageUtil.sendWarning(sender, "CAUTION: Low treasury reserves detected");
+            } else {
+                MessageUtil.sendSuccess(sender, "Your country's finances are stable");
+            }
+        }
+    }
+    
+    private void handleMaintenance(final CommandSender sender, final String[] args) {
+        if (!(sender instanceof Player player)) {
+            MessageUtil.sendError(sender, "This command can only be used by players!");
+            return;
+        }
+        
+        final Optional<xyz.inv1s1bl3.countries.database.entities.Player> playerDataOpt = 
+            this.plugin.getCountryManager().getPlayer(player.getUniqueId());
+        
+        if (playerDataOpt.isEmpty() || !playerDataOpt.get().hasCountry()) {
+            MessageUtil.sendMessage(sender, "country.not-in-country");
+            return;
+        }
+        
+        final xyz.inv1s1bl3.countries.database.entities.Player playerData = playerDataOpt.get();
+        final List<xyz.inv1s1bl3.countries.database.entities.Territory> territories = 
+            this.plugin.getTerritoryManager().getCountryTerritories(playerData.getCountryId());
+        
+        if (territories.isEmpty()) {
+            MessageUtil.sendInfo(sender, "Your country has no territories.");
+            return;
+        }
+        
+        MessageUtil.sendInfo(sender, "=== Territory Maintenance ===");
+        double totalMaintenance = 0.0;
+        
+        for (final xyz.inv1s1bl3.countries.database.entities.Territory territory : territories) {
+            final String info = String.format("- %s (%d, %d): $%.2f/day", 
+                territory.getTerritoryType(),
+                territory.getChunkX(), 
+                territory.getChunkZ(),
+                territory.getMaintenanceCost());
+            MessageUtil.sendInfo(sender, info);
+            totalMaintenance += territory.getMaintenanceCost();
+        }
+        
+        MessageUtil.sendInfo(sender, "Total Daily Maintenance: " + 
+            this.plugin.getEconomyManager().formatMoney(totalMaintenance));
     }
     
     private void sendHelpMessage(final CommandSender sender) {
@@ -507,6 +599,8 @@ public final class EconomyCommand implements CommandExecutor, TabCompleter {
         MessageUtil.sendInfo(sender, "/economy treasury [deposit/withdraw <amount>] - Treasury management");
         MessageUtil.sendInfo(sender, "/economy stats [country] - Economic statistics");
         MessageUtil.sendInfo(sender, "/economy report - Country economic report (admin only)");
+        MessageUtil.sendInfo(sender, "/economy bankruptcy - Bankruptcy analysis (admin only)");
+        MessageUtil.sendInfo(sender, "/economy maintenance - Territory maintenance costs");
     }
     
     @Override
@@ -514,7 +608,7 @@ public final class EconomyCommand implements CommandExecutor, TabCompleter {
                                                @NotNull final String alias, @NotNull final String[] args) {
         
         if (args.length == 1) {
-            return Arrays.asList("balance", "transfer", "history", "tax", "salary", "treasury", "stats", "report", "help")
+            return Arrays.asList("balance", "transfer", "history", "tax", "salary", "treasury", "stats", "report", "bankruptcy", "maintenance", "help")
                 .stream()
                 .filter(s -> s.toLowerCase().startsWith(args[0].toLowerCase()))
                 .collect(Collectors.toList());

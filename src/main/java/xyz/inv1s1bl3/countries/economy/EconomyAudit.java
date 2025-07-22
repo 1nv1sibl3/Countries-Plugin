@@ -150,6 +150,20 @@ public final class EconomyAudit {
                     }
                 }
             }
+            
+            // Check for economic anomalies
+            final double weeklyIncome = this.transactionManager.calculatePlayerIncome(member.getUuid(), 7);
+            final double weeklyExpenses = this.transactionManager.calculatePlayerExpenses(member.getUuid(), 7);
+            
+            if (weeklyIncome > balance * 2) {
+                report.getWarnings().add("Player '" + member.getUsername() + 
+                    "' has unusually high weekly income compared to balance");
+            }
+            
+            if (weeklyExpenses > balance * 3) {
+                report.getWarnings().add("Player '" + member.getUsername() + 
+                    "' has very high weekly expenses compared to balance");
+            }
         }
         
         report.getStatistics().put("players_audited", playersAudited);

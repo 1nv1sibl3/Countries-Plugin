@@ -12,51 +12,51 @@ import java.util.Optional;
 public enum TerritoryType {
     WILDERNESS("Wilderness", "Unclaimed wild territory", ChatColor.GREEN, 
                EnumSet.allOf(GovernmentType.class), true, true, true, true, true, 
-               "wilderness", 100.0, 1.0, true, true),
+               "wilderness", 0.0, 0.0, true, true),
     
     CITY("City", "Urban residential and commercial area", ChatColor.BLUE, 
          EnumSet.of(GovernmentType.DEMOCRACY, GovernmentType.REPUBLIC, GovernmentType.MONARCHY), 
          false, true, false, false, false,
-         "city", 500.0, 1.2, false, true),
+         "city", 800.0, 1.8, false, true),
     
     INDUSTRIAL("Industrial", "Manufacturing and production zone", ChatColor.GRAY, 
                EnumSet.of(GovernmentType.DEMOCRACY, GovernmentType.REPUBLIC), 
                true, true, false, false, false,
-               "industrial", 750.0, 1.5, false, false),
+               "industrial", 1200.0, 2.2, false, false),
     
     RESIDENTIAL("Residential", "Housing and living areas", ChatColor.LIGHT_PURPLE, 
                 EnumSet.of(GovernmentType.DEMOCRACY, GovernmentType.REPUBLIC, GovernmentType.MONARCHY), 
                 false, true, false, false, false,
-                "residential", 300.0, 1.1, true, true),
+                "residential", 100.0, 0.8, true, true),
     
     COMMERCIAL("Commercial", "Business and trade district", ChatColor.GOLD, 
                EnumSet.of(GovernmentType.DEMOCRACY, GovernmentType.REPUBLIC), 
                false, true, false, false, false,
-               "commercial", 600.0, 1.3, false, true),
+               "commercial", 500.0, 1.5, false, true),
     
     MILITARY("Military", "Restricted military installation", ChatColor.RED, 
              EnumSet.of(GovernmentType.MONARCHY), 
              false, false, false, false, false,
-             "military", 1000.0, 2.0, false, false),
+             "military", 2000.0, 3.5, false, false),
     
     AGRICULTURAL("Agricultural", "Farming and food production", ChatColor.YELLOW, 
                  EnumSet.allOf(GovernmentType.class), true, true, false, false, false,
-                 "agricultural", 200.0, 0.8, true, true),
+                 "agricultural", 150.0, 0.6, true, true),
     
     PROTECTED("Protected", "Environmentally protected area", ChatColor.DARK_GREEN, 
               EnumSet.of(GovernmentType.DEMOCRACY, GovernmentType.REPUBLIC), 
               false, false, false, false, false,
-              "protected", 400.0, 0.5, true, true),
+              "protected", 300.0, 0.4, true, true),
     
     BORDER("Border", "Territory boundary zone", ChatColor.DARK_RED, 
            EnumSet.of(GovernmentType.MONARCHY), 
            false, false, true, true, false,
-           "border", 800.0, 1.8, false, false),
+           "border", 1500.0, 2.8, false, false),
     
     CAPITAL("Capital", "Capital city territory", ChatColor.GOLD, 
             EnumSet.allOf(GovernmentType.class), 
             false, true, false, false, false,
-            "capital", 2000.0, 3.0, true, true);
+            "capital", 5000.0, 4.0, true, true);
 
     private final String displayName;
     private final String description;

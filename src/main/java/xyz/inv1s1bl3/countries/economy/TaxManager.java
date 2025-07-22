@@ -110,8 +110,21 @@ public final class TaxManager {
         final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player.getUuid());
         final double balance = this.vaultIntegration.getBalance(offlinePlayer);
         
-        // Calculate tax based on balance
-        final double taxAmount = balance * (taxRate / 100.0);
+        // Progressive tax calculation
+        double taxAmount = 0.0;
+        
+        // Tax brackets
+        if (balance <= 1000) {
+            taxAmount = balance * (taxRate * 0.5 / 100.0); // 50% of normal rate for low income
+        } else if (balance <= 10000) {
+            taxAmount = 1000 * (taxRate * 0.5 / 100.0) + (balance - 1000) * (taxRate / 100.0);
+        } else if (balance <= 50000) {
+            taxAmount = 1000 * (taxRate * 0.5 / 100.0) + 9000 * (taxRate / 100.0) + 
+                       (balance - 10000) * (taxRate * 1.2 / 100.0); // 120% of normal rate for high income
+        } else {
+            taxAmount = 1000 * (taxRate * 0.5 / 100.0) + 9000 * (taxRate / 100.0) + 
+                       40000 * (taxRate * 1.2 / 100.0) + (balance - 50000) * (taxRate * 1.5 / 100.0); // 150% for very high income
+        }
         
         // Apply minimum and maximum tax limits
         final double minTax = this.plugin.getConfigManager().getMainConfig().getDouble("economy.min-tax", 0.0);
@@ -334,5 +347,92 @@ public final class TaxManager {
         this.plugin.getCountryManager().updateCountry(country);
         
         return true;
+    }
+    
+    /**
+     * Calculate wealth-based tax for a player
+     * @param player Player to calculate tax for
+     * @param country Country the player belongs to
+     * @return Wealth tax amount
+     */
+    public double calculateWealthTax(final Player player, final xyz.inv1s1bl3.countries.database.entities.Country country) {
+        if (!this.vaultIntegration.isAvailable()) {
+            return 0.0;
+        }
+        
+        final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player.getUuid());
+        final double balance = this.vaultIntegration.getBalance(offlinePlayer);
+        
+        // Wealth tax only applies to high-wealth individuals
+        final double wealthThreshold = this.plugin.getConfigManager().getMainConfig()
+            .getDouble("economy.wealth-tax-threshold", 100000.0);
+        
+        if (balance <= wealthThreshold) {
+            return 0.0;
+        }
+        
+        final double wealthTaxRate = this.plugin.getConfigManager().getMainConfig()
+            .getDouble("economy.wealth-tax-rate", 1.0); // 1% wealth tax
+        
+        return (balance - wealthThreshold) * (wealthTaxRate / 100.0);
+    }
+    
+    /**
+     * Calculate property tax based on territory ownership
+     * @param player Player to calculate tax for
+     * @param country Country the player belongs to
+     * @return Property tax amount
+     */
+    public double calculatePropertyTax(final Player player, final xyz.inv1s1bl3.countries.database.entities.Country country) {
+        final List<xyz.inv1s1bl3.countries.database.entities.Territory> territories = 
+            this.plugin.getTerritoryManager().getCountryTerritories(country.getId());
+        
+        // Count territories claimed by this player
+        final long playerTerritories = territories.stream()
+            .filter(territory -> territory.wasClaimedBy(player.getUuid()))
+            .count();
+        
+        if (playerTerritories == 0) {
+            return 0.0;
+        }
+        
+        final double propertyTaxRate = this.plugin.getConfigManager().getMainConfig()
+            .getDouble("economy.property-tax-rate", 0.5); // 0.5% of territory value
+        
+        final double averageTerritoryValue = territories.stream()
+            .filter(territory -> territory.wasClaimedBy(player.getUuid()))
+            .mapToDouble(xyz.inv1s1bl3.countries.database.entities.Territory::getClaimCost)
+            .average()
+            .orElse(0.0);
+        
+        return playerTerritories * averageTerritoryValue * (propertyTaxRate / 100.0);
+    }
+    
+    /**
+     * Collect comprehensive taxes (income + wealth + property)
+     * @param player Player to collect from
+     * @param country Country collecting taxes
+     * @return Total tax collected
+     */
+    public double collectComprehensiveTax(final Player player, final xyz.inv1s1bl3.countries.database.entities.Country country) {
+        final double incomeTax = this.calculatePlayerTax(player, country.getTaxRate());
+        final double wealthTax = this.calculateWealthTax(player, country);
+        final double propertyTax = this.calculatePropertyTax(player, country);
+        
+        final double totalTax = incomeTax + wealthTax + propertyTax;
+        
+        if (totalTax > 0 && this.collectTaxFromPlayer(player, country, totalTax)) {
+            // Record detailed transaction
+            this.transactionManager.recordPlayerToCountryTransaction(
+                player.getUuid(), country.getId(), totalTax,
+                String.format("Comprehensive tax: Income($%.2f) + Wealth($%.2f) + Property($%.2f)", 
+                    incomeTax, wealthTax, propertyTax),
+                "tax", null
+            );
+            
+            return totalTax;
+        }
+        
+        return 0.0;
     }
 }
