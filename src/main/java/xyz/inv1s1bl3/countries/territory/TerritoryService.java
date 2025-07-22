@@ -77,7 +77,7 @@ public final class TerritoryService {
         
         // Calculate claim cost
         final double baseCost = this.plugin.getConfigManager().getBaseChunkPrice();
-        final double claimCost = this.calculateClaimCost(country, chunk, baseCost, type);
+        final double claimCost = this.calculateClaimCost(country, chunk, baseCost, territoryType);
         
         // Check if country has enough money
         // Check if player has enough money (use Vault for actual balance)
@@ -368,11 +368,17 @@ public final class TerritoryService {
      * @param country Country claiming
      * @param chunk Chunk to claim
      * @param baseCost Base cost per chunk
-     * @param territoryType Territory type being claimed
+     * @param territoryTypeKey Territory type key being claimed
      * @return Calculated cost
      */
-    private double calculateClaimCost(final Country country, final Chunk chunk, final double baseCost, final TerritoryType territoryType) {
-        double cost = baseCost * territoryType.getCreationCost() / 100.0; // Territory type multiplier
+    private double calculateClaimCost(final Country country, final Chunk chunk, final double baseCost, final String territoryTypeKey) {
+        final Optional<TerritoryType> territoryTypeOpt = TerritoryType.fromKey(territoryTypeKey);
+        if (territoryTypeOpt.isEmpty()) {
+            return baseCost;
+        }
+        
+        final TerritoryType territoryType = territoryTypeOpt.get();
+        double cost = baseCost * (territoryType.getCreationCost() / 100.0); // Territory type multiplier
         
         // Distance multiplier from capital
         if (country.hasCapital()) {
@@ -395,9 +401,14 @@ public final class TerritoryService {
         }
         
         // Country size multiplier (more territories = higher cost)
-        final List<Territory> existingTerritories = this.territoryRepository.findByCountryId(country.getId());
-        final double sizeMultiplier = 1.0 + (existingTerritories.size() * 0.05); // 5% increase per territory
-        cost *= sizeMultiplier;
+        try {
+            final List<Territory> existingTerritories = this.territoryRepository.findByCountryId(country.getId());
+            final double sizeMultiplier = 1.0 + (existingTerritories.size() * 0.05); // 5% increase per territory
+            cost *= sizeMultiplier;
+        } catch (final Exception exception) {
+            // If we can't get territories, just use base cost
+            this.plugin.getLogger().warning("Could not calculate size multiplier for country " + country.getName());
+        }
         
         // Economic health modifier
         final double economicHealth = this.plugin.getEconomyManager().getEconomyIntegration()

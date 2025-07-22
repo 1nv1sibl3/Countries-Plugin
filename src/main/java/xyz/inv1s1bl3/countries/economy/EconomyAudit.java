@@ -123,19 +123,19 @@ public final class EconomyAudit {
             
             for (final Player member : members) {
                 playersAudited++;
-                final double balance = this.plugin.getEconomyManager().getPlayerBalance(member.getUuid());
-                totalPlayerWealth += balance;
+                final double memberBalance = this.plugin.getEconomyManager().getPlayerBalance(member.getUuid());
+                totalPlayerWealth += memberBalance;
                 
                 // Check for negative balance
-                if (balance < 0) {
+                if (memberBalance < 0) {
                     report.getIssues().add("Player '" + member.getUsername() + "' has negative balance: $" + 
-                        String.format("%.2f", balance));
+                        String.format("%.2f", memberBalance));
                 }
                 
                 // Check for unreasonably high balance
-                if (balance > 500000) {
+                if (memberBalance > 500000) {
                     report.getWarnings().add("Player '" + member.getUsername() + "' has very high balance: $" + 
-                        String.format("%.2f", balance));
+                        String.format("%.2f", memberBalance));
                 }
                 
                 // Check for balance inconsistencies with Vault
@@ -143,26 +143,26 @@ public final class EconomyAudit {
                     final double vaultBalance = this.plugin.getEconomyManager().getVaultIntegration()
                         .getBalance(member.getUuid());
                     
-                    if (Math.abs(balance - vaultBalance) > 0.01) {
+                    if (Math.abs(memberBalance - vaultBalance) > 0.01) {
                         report.getWarnings().add("Player '" + member.getUsername() + 
-                            "' has balance mismatch between Countries ($" + String.format("%.2f", balance) + 
+                            "' has balance mismatch between Countries ($" + String.format("%.2f", memberBalance) + 
                             ") and Vault ($" + String.format("%.2f", vaultBalance) + ")");
                     }
                 }
-            }
-            
-            // Check for economic anomalies
-            final double weeklyIncome = this.transactionManager.calculatePlayerIncome(member.getUuid(), 7);
-            final double weeklyExpenses = this.transactionManager.calculatePlayerExpenses(member.getUuid(), 7);
-            
-            if (weeklyIncome > balance * 2) {
-                report.getWarnings().add("Player '" + member.getUsername() + 
-                    "' has unusually high weekly income compared to balance");
-            }
-            
-            if (weeklyExpenses > balance * 3) {
-                report.getWarnings().add("Player '" + member.getUsername() + 
-                    "' has very high weekly expenses compared to balance");
+                
+                // Check for economic anomalies
+                final double weeklyIncome = this.transactionManager.calculatePlayerIncome(member.getUuid(), 7);
+                final double weeklyExpenses = this.transactionManager.calculatePlayerExpenses(member.getUuid(), 7);
+                
+                if (weeklyIncome > memberBalance * 2) {
+                    report.getWarnings().add("Player '" + member.getUsername() + 
+                        "' has unusually high weekly income compared to balance");
+                }
+                
+                if (weeklyExpenses > memberBalance * 3) {
+                    report.getWarnings().add("Player '" + member.getUsername() + 
+                        "' has very high weekly expenses compared to balance");
+                }
             }
         }
         

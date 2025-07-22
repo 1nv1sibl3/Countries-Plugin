@@ -8,6 +8,8 @@ import org.bukkit.scheduler.BukkitTask;
 import xyz.inv1s1bl3.countries.CountriesPlugin;
 import xyz.inv1s1bl3.countries.database.repositories.TransactionRepository;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -297,12 +299,17 @@ public final class EconomyManager {
      * @return Total territory value
      */
     public double calculateTerritoryValue(final Integer countryId) {
-        final List<xyz.inv1s1bl3.countries.database.entities.Territory> territories = 
-            this.plugin.getTerritoryManager().getCountryTerritories(countryId);
+        try {
+            final List<xyz.inv1s1bl3.countries.database.entities.Territory> territories = 
+                this.plugin.getTerritoryManager().getCountryTerritories(countryId);
         
-        return territories.stream()
-            .mapToDouble(territory -> territory.getClaimCost() * 0.8) // 80% of claim cost as value
-            .sum();
+            return territories.stream()
+                .mapToDouble(territory -> territory.getClaimCost() * 0.8) // 80% of claim cost as value
+                .sum();
+        } catch (final Exception exception) {
+            this.plugin.getLogger().log(Level.WARNING, "Error calculating territory value for country " + countryId, exception);
+            return 0.0;
+        }
     }
     
     /**
@@ -311,12 +318,17 @@ public final class EconomyManager {
      * @return Daily maintenance cost
      */
     public double calculateDailyMaintenanceCosts(final Integer countryId) {
-        final List<xyz.inv1s1bl3.countries.database.entities.Territory> territories = 
-            this.plugin.getTerritoryManager().getCountryTerritories(countryId);
+        try {
+            final List<xyz.inv1s1bl3.countries.database.entities.Territory> territories = 
+                this.plugin.getTerritoryManager().getCountryTerritories(countryId);
         
-        return territories.stream()
-            .mapToDouble(xyz.inv1s1bl3.countries.database.entities.Territory::getMaintenanceCost)
-            .sum();
+            return territories.stream()
+                .mapToDouble(xyz.inv1s1bl3.countries.database.entities.Territory::getMaintenanceCost)
+                .sum();
+        } catch (final Exception exception) {
+            this.plugin.getLogger().log(Level.WARNING, "Error calculating maintenance costs for country " + countryId, exception);
+            return 0.0;
+        }
     }
     
     /**
@@ -324,33 +336,37 @@ public final class EconomyManager {
      * @param countryId Country ID
      */
     public void processBankruptcy(final Integer countryId) {
-        final Optional<xyz.inv1s1bl3.countries.database.entities.Country> countryOpt = 
-            this.plugin.getCountryManager().getCountry(countryId);
+        try {
+            final Optional<xyz.inv1s1bl3.countries.database.entities.Country> countryOpt = 
+                this.plugin.getCountryManager().getCountry(countryId);
         
-        if (countryOpt.isEmpty()) {
-            return;
-        }
-        
-        final xyz.inv1s1bl3.countries.database.entities.Country country = countryOpt.get();
-        
-        this.plugin.getLogger().warning("Processing bankruptcy for country: " + country.getName());
-        
-        // Calculate debts
-        final double maintenanceDebt = this.calculateDailyMaintenanceCosts(countryId) * 7; // 1 week of maintenance
-        final double territoryValue = this.calculateTerritoryValue(countryId);
-        
-        if (territoryValue > maintenanceDebt) {
-            // Sell some territories to cover debt
-            this.sellTerritoriesToCoverDebt(country, maintenanceDebt);
-        } else {
-            // Country is completely bankrupt - dissolve
-            this.plugin.getLogger().warning("Country " + country.getName() + " is bankrupt and will be dissolved!");
-            
-            try {
-                this.plugin.getCountryManager().dissolveCountry(countryId, null); // System dissolution
-            } catch (final Exception exception) {
-                this.plugin.getLogger().log(Level.SEVERE, "Error dissolving bankrupt country", exception);
+            if (countryOpt.isEmpty()) {
+                return;
             }
+        
+            final xyz.inv1s1bl3.countries.database.entities.Country country = countryOpt.get();
+        
+            this.plugin.getLogger().warning("Processing bankruptcy for country: " + country.getName());
+        
+            // Calculate debts
+            final double maintenanceDebt = this.calculateDailyMaintenanceCosts(countryId) * 7; // 1 week of maintenance
+            final double territoryValue = this.calculateTerritoryValue(countryId);
+        
+            if (territoryValue > maintenanceDebt) {
+                // Sell some territories to cover debt
+                this.sellTerritoriesToCoverDebt(country, maintenanceDebt);
+            } else {
+                // Country is completely bankrupt - dissolve
+                this.plugin.getLogger().warning("Country " + country.getName() + " is bankrupt and will be dissolved!");
+            
+                try {
+                    this.plugin.getCountryManager().dissolveCountry(countryId, null); // System dissolution
+                } catch (final Exception exception) {
+                    this.plugin.getLogger().log(Level.SEVERE, "Error dissolving bankrupt country", exception);
+                }
+            }
+        } catch (final Exception exception) {
+            this.plugin.getLogger().log(Level.SEVERE, "Error processing bankruptcy for country " + countryId, exception);
         }
     }
     
@@ -360,53 +376,57 @@ public final class EconomyManager {
      * @param debtAmount Amount of debt to cover
      */
     private void sellTerritoriesToCoverDebt(final xyz.inv1s1bl3.countries.database.entities.Country country, final double debtAmount) {
-        final List<xyz.inv1s1bl3.countries.database.entities.Territory> territories = 
-            this.plugin.getTerritoryManager().getCountryTerritories(country.getId());
+        try {
+            final List<xyz.inv1s1bl3.countries.database.entities.Territory> territories = 
+                this.plugin.getTerritoryManager().getCountryTerritories(country.getId());
         
-        // Sort by value (lowest first) to sell least valuable territories
-        territories.sort((a, b) -> Double.compare(a.getClaimCost(), b.getClaimCost()));
+            // Sort by value (lowest first) to sell least valuable territories
+            territories.sort((a, b) -> Double.compare(a.getClaimCost(), b.getClaimCost()));
         
-        double amountRaised = 0.0;
-        int territoriesSold = 0;
+            double amountRaised = 0.0;
+            int territoriesSold = 0;
         
-        for (final xyz.inv1s1bl3.countries.database.entities.Territory territory : territories) {
-            if (amountRaised >= debtAmount) {
-                break;
-            }
+            for (final xyz.inv1s1bl3.countries.database.entities.Territory territory : territories) {
+                if (amountRaised >= debtAmount) {
+                    break;
+                }
             
-            // Don't sell capital territory
-            if (territory.isCapital()) {
-                continue;
-            }
+                // Don't sell capital territory
+                if (territory.isCapital()) {
+                    continue;
+                }
             
-            final double saleValue = territory.getClaimCost() * 0.6; // 60% of original cost
+                final double saleValue = territory.getClaimCost() * 0.6; // 60% of original cost
             
-            try {
-                // Unclaim territory
-                this.plugin.getTerritoryManager().getTerritoryRepository().deleteById(territory.getId());
+                try {
+                    // Unclaim territory
+                    this.plugin.getTerritoryManager().getTerritoryRepository().deleteById(territory.getId());
                 
-                // Add money to treasury
-                country.addToTreasury(saleValue);
+                    // Add money to treasury
+                    country.addToTreasury(saleValue);
                 
-                // Record transaction
-                this.transactionManager.recordPlayerToCountryTransaction(
-                    null, country.getId(), saleValue,
-                    "Emergency sale of territory at " + territory.getChunkCoordinates(),
-                    "bankruptcy", null
-                );
+                    // Record transaction
+                    this.transactionManager.recordPlayerToCountryTransaction(
+                        null, country.getId(), saleValue,
+                        "Emergency sale of territory at " + territory.getChunkCoordinates(),
+                        "bankruptcy", null
+                    );
                 
-                amountRaised += saleValue;
-                territoriesSold++;
+                    amountRaised += saleValue;
+                    territoriesSold++;
                 
-            } catch (final Exception exception) {
-                this.plugin.getLogger().log(Level.WARNING, "Error selling territory during bankruptcy", exception);
+                } catch (final Exception exception) {
+                    this.plugin.getLogger().log(Level.WARNING, "Error selling territory during bankruptcy", exception);
+                }
             }
+        
+            this.plugin.getCountryManager().updateCountry(country);
+        
+            this.plugin.getLogger().info("Country " + country.getName() + " sold " + territoriesSold + 
+                " territories for $" + String.format("%.2f", amountRaised) + " to cover debt");
+        } catch (final Exception exception) {
+            this.plugin.getLogger().log(Level.SEVERE, "Error selling territories to cover debt", exception);
         }
-        
-        this.plugin.getCountryManager().updateCountry(country);
-        
-        this.plugin.getLogger().info("Country " + country.getName() + " sold " + territoriesSold + 
-            " territories for $" + String.format("%.2f", amountRaised) + " to cover debt");
     }
     
     /**

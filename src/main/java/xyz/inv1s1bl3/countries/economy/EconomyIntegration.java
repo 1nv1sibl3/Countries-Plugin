@@ -105,6 +105,13 @@ public final class EconomyIntegration {
             double maintenanceScore = this.calculateMaintenanceScore(countryId);
             double growthScore = this.calculateGrowthScore(countryId);
             
+            // Ensure scores are within bounds
+            treasuryScore = Math.max(0.0, Math.min(1.0, treasuryScore));
+            memberWealthScore = Math.max(0.0, Math.min(1.0, memberWealthScore));
+            incomeScore = Math.max(0.0, Math.min(1.0, incomeScore));
+            maintenanceScore = Math.max(0.0, Math.min(1.0, maintenanceScore));
+            growthScore = Math.max(0.0, Math.min(1.0, growthScore));
+            
             // Weighted average with new factors
             return (treasuryScore * 0.25) + (memberWealthScore * 0.2) + (incomeScore * 0.25) + 
                    (maintenanceScore * 0.15) + (growthScore * 0.15);
