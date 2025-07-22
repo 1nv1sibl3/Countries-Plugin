@@ -279,10 +279,12 @@ public final class PlayerRepository implements Repository<Player, UUID> {
      * Map ResultSet to Player entity
      */
     private Player mapResultSetToPlayer(final ResultSet resultSet) throws SQLException {
+        final String countryIdStr = resultSet.getString("country_id");
+        
         return Player.builder()
                 .uuid(UUID.fromString(resultSet.getString("uuid")))
                 .username(resultSet.getString("username"))
-                .countryId(resultSet.getObject("country_id", Integer.class))
+                .countryId(countryIdStr != null ? Integer.parseInt(countryIdStr) : null)
                 .role(resultSet.getString("role"))
                 .balance(resultSet.getDouble("balance"))
                 .joinedAt(LocalDateTime.parse(resultSet.getString("joined_at")))

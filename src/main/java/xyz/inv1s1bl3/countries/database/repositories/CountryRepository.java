@@ -319,6 +319,9 @@ public final class CountryRepository implements Repository<Country, Integer> {
      * Map ResultSet to Country entity
      */
     private Country mapResultSetToCountry(final ResultSet resultSet) throws SQLException {
+        final String capitalXStr = resultSet.getString("capital_x");
+        final String capitalZStr = resultSet.getString("capital_z");
+        
         return Country.builder()
                 .id(resultSet.getInt("id"))
                 .name(resultSet.getString("name"))
@@ -331,8 +334,8 @@ public final class CountryRepository implements Repository<Country, Integer> {
                 .taxRate(resultSet.getDouble("tax_rate"))
                 .createdAt(LocalDateTime.parse(resultSet.getString("created_at")))
                 .capitalWorld(resultSet.getString("capital_world"))
-                .capitalX(resultSet.getObject("capital_x", Integer.class))
-                .capitalZ(resultSet.getObject("capital_z", Integer.class))
+                .capitalX(capitalXStr != null ? Integer.parseInt(capitalXStr) : null)
+                .capitalZ(capitalZStr != null ? Integer.parseInt(capitalZStr) : null)
                 .isActive(resultSet.getBoolean("is_active"))
                 .build();
     }

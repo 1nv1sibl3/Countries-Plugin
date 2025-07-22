@@ -444,23 +444,29 @@ public final class TransactionRepository implements Repository<Transaction, Inte
      * Map ResultSet to Transaction entity
      */
     private Transaction mapResultSetToTransaction(final ResultSet resultSet) throws SQLException {
+        final String fromPlayerUuidStr = resultSet.getString("from_player_uuid");
+        final String toPlayerUuidStr = resultSet.getString("to_player_uuid");
+        final String fromCountryIdStr = resultSet.getString("from_country_id");
+        final String toCountryIdStr = resultSet.getString("to_country_id");
+        final String xStr = resultSet.getString("x");
+        final String yStr = resultSet.getString("y");
+        final String zStr = resultSet.getString("z");
+        
         return Transaction.builder()
                 .id(resultSet.getInt("id"))
                 .transactionType(resultSet.getString("transaction_type"))
-                .fromPlayerUuid(resultSet.getString("from_player_uuid") != null ? 
-                    UUID.fromString(resultSet.getString("from_player_uuid")) : null)
-                .toPlayerUuid(resultSet.getString("to_player_uuid") != null ? 
-                    UUID.fromString(resultSet.getString("to_player_uuid")) : null)
-                .fromCountryId(resultSet.getObject("from_country_id", Integer.class))
-                .toCountryId(resultSet.getObject("to_country_id", Integer.class))
+                .fromPlayerUuid(fromPlayerUuidStr != null ? UUID.fromString(fromPlayerUuidStr) : null)
+                .toPlayerUuid(toPlayerUuidStr != null ? UUID.fromString(toPlayerUuidStr) : null)
+                .fromCountryId(fromCountryIdStr != null ? Integer.parseInt(fromCountryIdStr) : null)
+                .toCountryId(toCountryIdStr != null ? Integer.parseInt(toCountryIdStr) : null)
                 .amount(resultSet.getDouble("amount"))
                 .description(resultSet.getString("description"))
                 .category(resultSet.getString("category"))
                 .createdAt(LocalDateTime.parse(resultSet.getString("created_at")))
                 .worldName(resultSet.getString("world_name"))
-                .x(resultSet.getObject("x", Integer.class))
-                .y(resultSet.getObject("y", Integer.class))
-                .z(resultSet.getObject("z", Integer.class))
+                .x(xStr != null ? Integer.parseInt(xStr) : null)
+                .y(yStr != null ? Integer.parseInt(yStr) : null)
+                .z(zStr != null ? Integer.parseInt(zStr) : null)
                 .build();
     }
 }

@@ -22,10 +22,14 @@ public final class EconomyManager {
     private final VaultIntegration vaultIntegration;
     private final TransactionManager transactionManager;
     private final TaxManager taxManager;
+    private final EconomyIntegration economyIntegration;
+    private final EconomyStatistics economyStatistics;
+    private final EconomyAudit economyAudit;
     
     // Scheduled tasks
     private BukkitTask taxCollectionTask;
     private BukkitTask salaryPaymentTask;
+    private BukkitTask auditTask;
     
     public EconomyManager(final CountriesPlugin plugin) {
         this.plugin = plugin;
@@ -33,6 +37,9 @@ public final class EconomyManager {
         this.vaultIntegration = new VaultIntegration(plugin, plugin.getVaultEconomy());
         this.transactionManager = new TransactionManager(plugin, this.transactionRepository);
         this.taxManager = new TaxManager(plugin, this.vaultIntegration, this.transactionManager);
+        this.economyIntegration = new EconomyIntegration(plugin, this.vaultIntegration, this.transactionManager);
+        this.economyStatistics = new EconomyStatistics(plugin, this.transactionManager);
+        this.economyAudit = new EconomyAudit(plugin, this.transactionManager);
     }
     
     /**
@@ -49,6 +56,14 @@ public final class EconomyManager {
         if (this.plugin.getConfigManager().getMainConfig().getBoolean("economy.enable-salaries", true)) {
             this.startSalaryPayments();
         }
+        
+        // Start audit task
+        if (this.plugin.getConfigManager().getMainConfig().getBoolean("economy.enable-auditing", true)) {
+            this.startAuditTask();
+        }
+        
+        // Sync online player balances
+        this.economyIntegration.syncAllOnlinePlayerBalances();
         
         this.plugin.getLogger().info("Economy Manager initialized successfully!");
     }
@@ -99,6 +114,42 @@ public final class EconomyManager {
         
         this.plugin.getLogger().info("Automatic salary payments started (interval: " + 
             (salaryInterval / 20 / 60 / 60) + " hours)");
+    }
+    
+    /**
+     * Start automatic audit task
+     */
+    private void startAuditTask() {
+        final int auditInterval = this.plugin.getConfigManager().getMainConfig()
+            .getInt("economy.audit-interval", 168) * 20 * 60 * 60; // Convert hours to ticks (default: weekly)
+        
+        this.auditTask = Bukkit.getScheduler().runTaskTimerAsynchronously(
+            this.plugin,
+            () -> {
+                try {
+                    final EconomyAudit.AuditReport report = this.economyAudit.performFullAudit();
+                    
+                    if (report.hasIssues()) {
+                        this.plugin.getLogger().warning("Economic audit found " + report.getIssues().size() + " issues!");
+                        for (final String issue : report.getIssues()) {
+                            this.plugin.getLogger().warning("AUDIT ISSUE: " + issue);
+                        }
+                    }
+                    
+                    if (report.hasWarnings()) {
+                        this.plugin.getLogger().info("Economic audit found " + report.getWarnings().size() + " warnings.");
+                    }
+                    
+                } catch (final Exception exception) {
+                    this.plugin.getLogger().log(Level.SEVERE, "Error during automatic economic audit", exception);
+                }
+            },
+            auditInterval, // Initial delay
+            auditInterval  // Period
+        );
+        
+        this.plugin.getLogger().info("Automatic economic auditing started (interval: " + 
+            (auditInterval / 20 / 60 / 60) + " hours)");
     }
     
     /**
@@ -250,6 +301,57 @@ public final class EconomyManager {
     }
     
     /**
+     * Generate economic report for a country
+     * @param countryId Country ID
+     * @return Economic report
+     */
+    public EconomyIntegration.EconomicReport generateCountryEconomicReport(final Integer countryId) {
+        return this.economyIntegration.generateCountryEconomicReport(countryId);
+    }
+    
+    /**
+     * Generate global economic statistics
+     * @return Global economic stats
+     */
+    public EconomyStatistics.GlobalEconomicStats generateGlobalStats() {
+        return this.economyStatistics.generateGlobalStats();
+    }
+    
+    /**
+     * Generate player economic statistics
+     * @param playerUuid Player UUID
+     * @return Player economic stats
+     */
+    public EconomyStatistics.PlayerEconomicStats generatePlayerStats(final UUID playerUuid) {
+        return this.economyStatistics.generatePlayerStats(playerUuid);
+    }
+    
+    /**
+     * Generate country economic statistics
+     * @param countryId Country ID
+     * @return Country economic stats
+     */
+    public EconomyStatistics.CountryEconomicStats generateCountryStats(final Integer countryId) {
+        return this.economyStatistics.generateCountryStats(countryId);
+    }
+    
+    /**
+     * Perform economic audit
+     * @return Audit report
+     */
+    public EconomyAudit.AuditReport performEconomicAudit() {
+        return this.economyAudit.performFullAudit();
+    }
+    
+    /**
+     * Handle player join for economy integration
+     * @param playerUuid Player UUID
+     */
+    public void handlePlayerJoin(final UUID playerUuid) {
+        this.economyIntegration.handlePlayerJoin(playerUuid);
+    }
+    
+    /**
      * Save all economy data
      */
     public void saveAllData() {
@@ -276,6 +378,10 @@ public final class EconomyManager {
             this.salaryPaymentTask.cancel();
         }
         
+        if (this.auditTask != null) {
+            this.auditTask.cancel();
+        }
+        
         // Restart tasks with new configuration
         if (this.plugin.getConfigManager().getMainConfig().getBoolean("economy.enable-taxes", true)) {
             this.startTaxCollection();
@@ -283,6 +389,10 @@ public final class EconomyManager {
         
         if (this.plugin.getConfigManager().getMainConfig().getBoolean("economy.enable-salaries", true)) {
             this.startSalaryPayments();
+        }
+        
+        if (this.plugin.getConfigManager().getMainConfig().getBoolean("economy.enable-auditing", true)) {
+            this.startAuditTask();
         }
         
         this.plugin.getLogger().info("Economy Manager reloaded successfully!");
@@ -301,6 +411,10 @@ public final class EconomyManager {
         
         if (this.salaryPaymentTask != null) {
             this.salaryPaymentTask.cancel();
+        }
+        
+        if (this.auditTask != null) {
+            this.auditTask.cancel();
         }
         
         this.plugin.getLogger().info("Economy Manager shut down successfully!");

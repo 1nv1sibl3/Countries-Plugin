@@ -29,6 +29,9 @@ public final class PlayerEventListener implements Listener {
             event.getPlayer().getUniqueId(),
             true
         );
+        
+        // Handle economy integration
+        this.plugin.getEconomyManager().handlePlayerJoin(event.getPlayer().getUniqueId());
     }
     
     @EventHandler

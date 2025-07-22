@@ -49,6 +49,8 @@ public final class EconomyCommand implements CommandExecutor, TabCompleter {
             case "tax" -> this.handleTax(sender, args);
             case "salary" -> this.handleSalary(sender, args);
             case "treasury" -> this.handleTreasury(sender, args);
+            case "stats" -> this.handleStats(sender, args);
+            case "report" -> this.handleReport(sender, args);
             case "help" -> this.sendHelpMessage(sender);
             default -> MessageUtil.sendMessage(sender, "general.invalid-command", 
                     Map.of("usage", "/economy help"));
@@ -402,6 +404,99 @@ public final class EconomyCommand implements CommandExecutor, TabCompleter {
         }
     }
     
+    private void handleStats(final CommandSender sender, final String[] args) {
+        if (!(sender instanceof Player player)) {
+            MessageUtil.sendError(sender, "This command can only be used by players!");
+            return;
+        }
+        
+        if (args.length == 1) {
+            // Show player's own stats
+            final var stats = this.plugin.getEconomyManager().generatePlayerStats(player.getUniqueId());
+            
+            MessageUtil.sendInfo(sender, "=== Your Economic Statistics ===");
+            MessageUtil.sendInfo(sender, "Current Balance: " + 
+                this.plugin.getEconomyManager().formatMoney(stats.getCurrentBalance()));
+            MessageUtil.sendInfo(sender, "Weekly Income: " + 
+                this.plugin.getEconomyManager().formatMoney(stats.getWeeklyIncome()));
+            MessageUtil.sendInfo(sender, "Weekly Expenses: " + 
+                this.plugin.getEconomyManager().formatMoney(stats.getWeeklyExpenses()));
+            MessageUtil.sendInfo(sender, "Weekly Net Income: " + 
+                this.plugin.getEconomyManager().formatMoney(stats.getWeeklyNetIncome()));
+            MessageUtil.sendInfo(sender, "Monthly Net Income: " + 
+                this.plugin.getEconomyManager().formatMoney(stats.getMonthlyNetIncome()));
+            MessageUtil.sendInfo(sender, "Total Transactions: " + stats.getTotalTransactions());
+            
+        } else if (args.length == 2 && args[1].equalsIgnoreCase("country")) {
+            // Show country stats
+            final Optional<xyz.inv1s1bl3.countries.database.entities.Player> playerDataOpt = 
+                this.plugin.getCountryManager().getPlayer(player.getUniqueId());
+            
+            if (playerDataOpt.isEmpty() || !playerDataOpt.get().hasCountry()) {
+                MessageUtil.sendMessage(sender, "country.not-in-country");
+                return;
+            }
+            
+            final xyz.inv1s1bl3.countries.database.entities.Player playerData = playerDataOpt.get();
+            final var stats = this.plugin.getEconomyManager().generateCountryStats(playerData.getCountryId());
+            
+            if (stats != null) {
+                MessageUtil.sendInfo(sender, "=== " + stats.getCountryName() + " Economic Statistics ===");
+                MessageUtil.sendInfo(sender, "Treasury Balance: " + 
+                    this.plugin.getEconomyManager().formatMoney(stats.getTreasuryBalance()));
+                MessageUtil.sendInfo(sender, "Total Member Wealth: " + 
+                    this.plugin.getEconomyManager().formatMoney(stats.getTotalMemberWealth()));
+                MessageUtil.sendInfo(sender, "Member Count: " + stats.getMemberCount());
+                MessageUtil.sendInfo(sender, "Average Member Wealth: " + 
+                    this.plugin.getEconomyManager().formatMoney(stats.getAverageMemberWealth()));
+                MessageUtil.sendInfo(sender, "Weekly Net Income: " + 
+                    this.plugin.getEconomyManager().formatMoney(stats.getWeeklyNetIncome()));
+                MessageUtil.sendInfo(sender, "Tax Rate: " + stats.getTaxRate() + "%");
+            }
+        }
+    }
+    
+    private void handleReport(final CommandSender sender, final String[] args) {
+        if (!(sender instanceof Player player)) {
+            MessageUtil.sendError(sender, "This command can only be used by players!");
+            return;
+        }
+        
+        if (!PermissionUtil.hasCountryAdminPermissions(player)) {
+            MessageUtil.sendMessage(sender, "general.no-permission");
+            return;
+        }
+        
+        final Optional<xyz.inv1s1bl3.countries.database.entities.Player> playerDataOpt = 
+            this.plugin.getCountryManager().getPlayer(player.getUniqueId());
+        
+        if (playerDataOpt.isEmpty() || !playerDataOpt.get().hasCountry()) {
+            MessageUtil.sendMessage(sender, "country.not-in-country");
+            return;
+        }
+        
+        final xyz.inv1s1bl3.countries.database.entities.Player playerData = playerDataOpt.get();
+        final var report = this.plugin.getEconomyManager().generateCountryEconomicReport(playerData.getCountryId());
+        
+        if (report != null) {
+            MessageUtil.sendInfo(sender, "=== " + report.getCountryName() + " Economic Report ===");
+            MessageUtil.sendInfo(sender, "Treasury Balance: " + 
+                this.plugin.getEconomyManager().formatMoney(report.getTreasuryBalance()));
+            MessageUtil.sendInfo(sender, "Member Count: " + report.getMemberCount());
+            MessageUtil.sendInfo(sender, "Average Member Wealth: " + 
+                this.plugin.getEconomyManager().formatMoney(report.getAverageMemberWealth()));
+            MessageUtil.sendInfo(sender, "Weekly Income: " + 
+                this.plugin.getEconomyManager().formatMoney(report.getWeeklyIncome()));
+            MessageUtil.sendInfo(sender, "Weekly Expenses: " + 
+                this.plugin.getEconomyManager().formatMoney(report.getWeeklyExpenses()));
+            MessageUtil.sendInfo(sender, "Weekly Net Income: " + 
+                this.plugin.getEconomyManager().formatMoney(report.getNetWeeklyIncome()));
+            MessageUtil.sendInfo(sender, "Economic Health: " + report.getHealthRating() + 
+                " (" + String.format("%.1f%%", report.getEconomicHealth() * 100) + ")");
+            MessageUtil.sendInfo(sender, "Tax Rate: " + report.getTaxRate() + "%");
+        }
+    }
+    
     private void sendHelpMessage(final CommandSender sender) {
         MessageUtil.sendInfo(sender, "Economy Commands:");
         MessageUtil.sendInfo(sender, "/economy balance [player] - Check balance");
@@ -410,6 +505,8 @@ public final class EconomyCommand implements CommandExecutor, TabCompleter {
         MessageUtil.sendInfo(sender, "/economy tax [set <rate>|collect] - Tax management");
         MessageUtil.sendInfo(sender, "/economy salary [pay] - Salary information");
         MessageUtil.sendInfo(sender, "/economy treasury [deposit/withdraw <amount>] - Treasury management");
+        MessageUtil.sendInfo(sender, "/economy stats [country] - Economic statistics");
+        MessageUtil.sendInfo(sender, "/economy report - Country economic report (admin only)");
     }
     
     @Override
@@ -417,7 +514,7 @@ public final class EconomyCommand implements CommandExecutor, TabCompleter {
                                                @NotNull final String alias, @NotNull final String[] args) {
         
         if (args.length == 1) {
-            return Arrays.asList("balance", "transfer", "history", "tax", "salary", "treasury", "help")
+            return Arrays.asList("balance", "transfer", "history", "tax", "salary", "treasury", "stats", "report", "help")
                 .stream()
                 .filter(s -> s.toLowerCase().startsWith(args[0].toLowerCase()))
                 .collect(Collectors.toList());
@@ -462,6 +559,12 @@ public final class EconomyCommand implements CommandExecutor, TabCompleter {
                 }
                 case "treasury" -> {
                     return Arrays.asList("deposit", "withdraw")
+                        .stream()
+                        .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
+                        .collect(Collectors.toList());
+                }
+                case "stats" -> {
+                    return Arrays.asList("country")
                         .stream()
                         .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
                         .collect(Collectors.toList());

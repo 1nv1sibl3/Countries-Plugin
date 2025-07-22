@@ -54,6 +54,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
             case "territory" -> this.handleTerritory(sender, args);
             case "player" -> this.handlePlayer(sender, args);
             case "stats" -> this.handleStats(sender);
+            case "audit" -> this.handleAudit(sender, args);
             case "help" -> this.sendHelpMessage(sender);
             default -> MessageUtil.sendMessage(sender, "general.invalid-command", 
                     Map.of("usage", "/countries-admin help"));
@@ -484,6 +485,104 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         }
     }
     
+    private void handleAudit(final CommandSender sender, final String[] args) {
+        if (args.length == 1) {
+            // Perform full audit
+            MessageUtil.sendInfo(sender, "Starting comprehensive economic audit...");
+            
+            Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
+                final var report = this.plugin.getEconomyManager().performEconomicAudit();
+                
+                Bukkit.getScheduler().runTask(this.plugin, () -> {
+                    MessageUtil.sendInfo(sender, "=== Economic Audit Report ===");
+                    MessageUtil.sendInfo(sender, "Status: " + report.getStatus());
+                    MessageUtil.sendInfo(sender, "Duration: " + report.getAuditDurationMinutes() + " minutes");
+                    MessageUtil.sendInfo(sender, "Issues Found: " + report.getIssues().size());
+                    MessageUtil.sendInfo(sender, "Warnings: " + report.getWarnings().size());
+                    
+                    if (report.hasIssues()) {
+                        MessageUtil.sendInfo(sender, "");
+                        MessageUtil.sendInfo(sender, "Critical Issues:");
+                        for (int i = 0; i < Math.min(5, report.getIssues().size()); i++) {
+                            MessageUtil.sendError(sender, "- " + report.getIssues().get(i));
+                        }
+                        if (report.getIssues().size() > 5) {
+                            MessageUtil.sendInfo(sender, "... and " + (report.getIssues().size() - 5) + " more issues");
+                        }
+                    }
+                    
+                    if (report.hasWarnings()) {
+                        MessageUtil.sendInfo(sender, "");
+                        MessageUtil.sendInfo(sender, "Warnings:");
+                        for (int i = 0; i < Math.min(3, report.getWarnings().size()); i++) {
+                            MessageUtil.sendWarning(sender, "- " + report.getWarnings().get(i));
+                        }
+                        if (report.getWarnings().size() > 3) {
+                            MessageUtil.sendInfo(sender, "... and " + (report.getWarnings().size() - 3) + " more warnings");
+                        }
+                    }
+                });
+            });
+            
+        } else if (args.length == 2) {
+            final String auditType = args[1].toLowerCase();
+            
+            switch (auditType) {
+                case "stats" -> {
+                    final var globalStats = this.plugin.getEconomyManager().generateGlobalStats();
+                    
+                    MessageUtil.sendInfo(sender, "=== Global Economic Statistics ===");
+                    MessageUtil.sendInfo(sender, "Total Countries: " + globalStats.getTotalCountries());
+                    MessageUtil.sendInfo(sender, "Total Treasury Balance: " + 
+                        this.plugin.getEconomyManager().formatMoney(globalStats.getTotalTreasuryBalance()));
+                    MessageUtil.sendInfo(sender, "Total Player Wealth: " + 
+                        this.plugin.getEconomyManager().formatMoney(globalStats.getTotalPlayerWealth()));
+                    MessageUtil.sendInfo(sender, "Total Economic Value: " + 
+                        this.plugin.getEconomyManager().formatMoney(globalStats.getTotalEconomicValue()));
+                    MessageUtil.sendInfo(sender, "Total Transactions: " + globalStats.getTotalTransactions());
+                    MessageUtil.sendInfo(sender, "Average Treasury Balance: " + 
+                        this.plugin.getEconomyManager().formatMoney(globalStats.getAverageTreasuryBalance()));
+                }
+                case "country" -> {
+                    if (args.length < 3) {
+                        MessageUtil.sendError(sender, "Usage: /countries-admin audit country <country-name>");
+                        return;
+                    }
+                    
+                    final String countryName = args[2];
+                    final var countryOpt = this.plugin.getCountryManager().getCountryByName(countryName);
+                    
+                    if (countryOpt.isEmpty()) {
+                        MessageUtil.sendError(sender, "Country '" + countryName + "' not found!");
+                        return;
+                    }
+                    
+                    final var country = countryOpt.get();
+                    final var stats = this.plugin.getEconomyManager().generateCountryStats(country.getId());
+                    
+                    if (stats != null) {
+                        MessageUtil.sendInfo(sender, "=== " + stats.getCountryName() + " Economic Statistics ===");
+                        MessageUtil.sendInfo(sender, "Treasury Balance: " + 
+                            this.plugin.getEconomyManager().formatMoney(stats.getTreasuryBalance()));
+                        MessageUtil.sendInfo(sender, "Total Member Wealth: " + 
+                            this.plugin.getEconomyManager().formatMoney(stats.getTotalMemberWealth()));
+                        MessageUtil.sendInfo(sender, "Member Count: " + stats.getMemberCount());
+                        MessageUtil.sendInfo(sender, "Average Member Wealth: " + 
+                            this.plugin.getEconomyManager().formatMoney(stats.getAverageMemberWealth()));
+                        MessageUtil.sendInfo(sender, "Weekly Income: " + 
+                            this.plugin.getEconomyManager().formatMoney(stats.getWeeklyIncome()));
+                        MessageUtil.sendInfo(sender, "Weekly Expenses: " + 
+                            this.plugin.getEconomyManager().formatMoney(stats.getWeeklyExpenses()));
+                        MessageUtil.sendInfo(sender, "Weekly Net Income: " + 
+                            this.plugin.getEconomyManager().formatMoney(stats.getWeeklyNetIncome()));
+                        MessageUtil.sendInfo(sender, "Tax Rate: " + stats.getTaxRate() + "%");
+                    }
+                }
+                default -> MessageUtil.sendError(sender, "Invalid audit type: " + auditType);
+            }
+        }
+    }
+    
     private void sendHelpMessage(final CommandSender sender) {
         MessageUtil.sendInfo(sender, "Countries Admin Commands:");
         MessageUtil.sendInfo(sender, "/countries-admin reload - Reload plugin");
@@ -492,6 +591,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         MessageUtil.sendInfo(sender, "/countries-admin country <action> - Country management");
         MessageUtil.sendInfo(sender, "/countries-admin player <player> <action> - Player management");
         MessageUtil.sendInfo(sender, "/countries-admin stats - Plugin statistics");
+        MessageUtil.sendInfo(sender, "/countries-admin audit [type] - Economic auditing");
         MessageUtil.sendInfo(sender, "");
         MessageUtil.sendInfo(sender, "Economy subcommands:");
         MessageUtil.sendInfo(sender, "  give/take/set <player> <amount> - Manage player money");
@@ -499,6 +599,10 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         MessageUtil.sendInfo(sender, "  tax-collect [country] - Force tax collection");
         MessageUtil.sendInfo(sender, "  salary-pay [country] - Force salary payments");
         MessageUtil.sendInfo(sender, "  transactions [limit] - View recent transactions");
+        MessageUtil.sendInfo(sender, "");
+        MessageUtil.sendInfo(sender, "Audit types:");
+        MessageUtil.sendInfo(sender, "  stats - Global economic statistics");
+        MessageUtil.sendInfo(sender, "  country <name> - Country economic analysis");
     }
     
     @Override
@@ -510,7 +614,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         }
         
         if (args.length == 1) {
-            return Arrays.asList("reload", "info", "economy", "country", "territory", "player", "stats", "help")
+            return Arrays.asList("reload", "info", "economy", "country", "territory", "player", "stats", "audit", "help")
                 .stream()
                 .filter(s -> s.toLowerCase().startsWith(args[0].toLowerCase()))
                 .collect(Collectors.toList());
@@ -542,7 +646,20 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                         .filter(name -> name.toLowerCase().startsWith(args[1].toLowerCase()))
                         .collect(Collectors.toList());
                 }
+                case "audit" -> {
+                    return Arrays.asList("stats", "country")
+                        .stream()
+                        .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
+                        .collect(Collectors.toList());
+                }
             }
+        }
+        
+        if (args.length == 3 && args[0].equalsIgnoreCase("audit") && args[1].equalsIgnoreCase("country")) {
+            return this.plugin.getCountryManager().getAllActiveCountries().stream()
+                .map(xyz.inv1s1bl3.countries.database.entities.Country::getName)
+                .filter(name -> name.toLowerCase().startsWith(args[2].toLowerCase()))
+                .collect(Collectors.toList());
         }
         
         return new ArrayList<>();
