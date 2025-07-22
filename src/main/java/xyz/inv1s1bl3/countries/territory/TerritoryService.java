@@ -80,8 +80,17 @@ public final class TerritoryService {
         final double claimCost = this.calculateClaimCost(country, chunk, baseCost);
         
         // Check if country has enough money
-        if (!country.hasSufficientFunds(claimCost)) {
-            throw new IllegalArgumentException("Country treasury has insufficient funds (need $" + claimCost + ")");
+        // Check if player has enough money (use Vault for actual balance)
+        final CountriesPlugin plugin = this.plugin;
+        if (plugin.hasVaultEconomy()) {
+            if (!plugin.getEconomyManager().getVaultIntegration().hasBalance(playerUuid, claimCost)) {
+                throw new IllegalArgumentException("You need $" + String.format("%.2f", claimCost) + " to claim this chunk");
+            }
+        } else {
+            // Fallback to country treasury if no Vault
+            if (!country.hasSufficientFunds(claimCost)) {
+                throw new IllegalArgumentException("Country treasury has insufficient funds (need $" + claimCost + ")");
+            }
         }
         
         // Validate territory type
@@ -119,9 +128,25 @@ public final class TerritoryService {
         
         final Territory savedTerritory = this.territoryRepository.save(territory);
         
-        // Deduct cost from country treasury
-        country.removeFromTreasury(claimCost);
-        this.countryRepository.update(country);
+        // Deduct cost from player or country treasury
+        if (this.plugin.hasVaultEconomy()) {
+            // Withdraw from player using Vault
+            if (!this.plugin.getEconomyManager().getVaultIntegration().withdrawPlayer(playerUuid, claimCost)) {
+                // If withdrawal fails, delete the territory and throw error
+                this.territoryRepository.deleteById(savedTerritory.getId());
+                throw new IllegalArgumentException("Failed to withdraw money from your account");
+            }
+            
+            // Record transaction
+            this.plugin.getEconomyManager().getTransactionManager().recordPlayerToCountryTransaction(
+                playerUuid, country.getId(), claimCost, "Territory claim at " + 
+                chunk.getX() + "," + chunk.getZ(), "territory", null
+            );
+        } else {
+            // Fallback to country treasury
+            country.removeFromTreasury(claimCost);
+            this.countryRepository.update(country);
+        }
         
         // Set as capital if it's the first territory or explicitly capital type
         if (type == TerritoryType.CAPITAL || countryTerritories.isEmpty()) {

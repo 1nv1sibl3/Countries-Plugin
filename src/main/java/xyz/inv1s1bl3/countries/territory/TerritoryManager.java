@@ -9,6 +9,7 @@ import xyz.inv1s1bl3.countries.database.entities.Territory;
 import xyz.inv1s1bl3.countries.database.repositories.TerritoryRepository;
 import xyz.inv1s1bl3.countries.database.repositories.CountryRepository;
 import xyz.inv1s1bl3.countries.database.repositories.PlayerRepository;
+import xyz.inv1s1bl3.countries.territory.protection.AdvancedProtectionManager;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -29,6 +30,7 @@ public final class TerritoryManager {
     private final TerritoryService territoryService;
     private final ChunkManager chunkManager;
     private final ProtectionManager protectionManager;
+    private final AdvancedProtectionManager advancedProtectionManager;
     
     public TerritoryManager(final CountriesPlugin plugin) {
         this.plugin = plugin;
@@ -37,7 +39,8 @@ public final class TerritoryManager {
         this.playerRepository = new PlayerRepository(plugin);
         this.territoryService = new TerritoryService(plugin, this.territoryRepository, this.countryRepository, this.playerRepository);
         this.chunkManager = new ChunkManager(plugin, this.territoryService);
-        this.protectionManager = new ProtectionManager(plugin, this.chunkManager);
+        this.advancedProtectionManager = new AdvancedProtectionManager(plugin, this.chunkManager);
+        this.protectionManager = new ProtectionManager(plugin, this.advancedProtectionManager);
     }
     
     /**
@@ -187,11 +190,11 @@ public final class TerritoryManager {
     /**
      * Check if mob spawning is allowed at a location
      * @param location Location to check
-     * @param isHostile Whether the mob is hostile
+     * @param entityType Entity type to spawn
      * @return true if spawning is allowed
      */
-    public boolean isMobSpawningAllowed(final Location location, final boolean isHostile) {
-        return this.protectionManager.isMobSpawningAllowed(location, isHostile);
+    public boolean isMobSpawningAllowed(final Location location, final org.bukkit.entity.EntityType entityType) {
+        return this.protectionManager.isMobSpawningAllowed(location, entityType);
     }
     
     /**

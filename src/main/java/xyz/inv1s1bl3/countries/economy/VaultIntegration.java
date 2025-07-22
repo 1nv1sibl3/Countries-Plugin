@@ -71,6 +71,51 @@ public final class VaultIntegration {
     }
     
     /**
+     * Check if player has enough money by UUID
+     * @param playerUuid Player UUID
+     * @param amount Amount to check
+     * @return true if player has enough money
+     */
+    public boolean hasBalance(final UUID playerUuid, final double amount) {
+        if (!this.isAvailable()) {
+            return false;
+        }
+        
+        final OfflinePlayer player = this.plugin.getServer().getOfflinePlayer(playerUuid);
+        return this.vaultEconomy.has(player, amount);
+    }
+    
+    /**
+     * Withdraw money from player by UUID
+     * @param playerUuid Player UUID
+     * @param amount Amount to withdraw
+     * @return true if successful
+     */
+    public boolean withdrawPlayer(final UUID playerUuid, final double amount) {
+        if (!this.isAvailable()) {
+            return false;
+        }
+        
+        final OfflinePlayer player = this.plugin.getServer().getOfflinePlayer(playerUuid);
+        return this.withdrawPlayer(player, amount);
+    }
+    
+    /**
+     * Deposit money to player by UUID
+     * @param playerUuid Player UUID
+     * @param amount Amount to deposit
+     * @return true if successful
+     */
+    public boolean depositPlayer(final UUID playerUuid, final double amount) {
+        if (!this.isAvailable()) {
+            return false;
+        }
+        
+        final OfflinePlayer player = this.plugin.getServer().getOfflinePlayer(playerUuid);
+        return this.depositPlayer(player, amount);
+    }
+    
+    /**
      * Withdraw money from player
      * @param player Player to withdraw from
      * @param amount Amount to withdraw

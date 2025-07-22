@@ -6,7 +6,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.entity.Player;
 import xyz.inv1s1bl3.countries.CountriesPlugin;
 import xyz.inv1s1bl3.countries.utils.MessageUtil;
 
@@ -55,6 +60,42 @@ public final class BlockEventListener implements Listener {
                 event.getPlayer(), event.getClickedBlock(), event.getAction())) {
             event.setCancelled(true);
             MessageUtil.sendMessage(event.getPlayer(), "territory.protection-interaction");
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEntityDamageByEntity(final EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player player) {
+            if (!this.plugin.getTerritoryManager().getAdvancedProtectionManager()
+                .canDamageEntity(player, event.getEntity())) {
+                event.setCancelled(true);
+                MessageUtil.sendMessage(player, "territory.protection-entity-damage");
+            }
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onCreatureSpawn(final CreatureSpawnEvent event) {
+        if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.NATURAL) {
+            if (!this.plugin.getTerritoryManager().isMobSpawningAllowed(
+                event.getLocation(), event.getEntityType())) {
+                event.setCancelled(true);
+            }
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerMove(final PlayerMoveEvent event) {
+        // Only check if player moved to different chunk
+        if (event.getFrom().getChunk().equals(event.getTo().getChunk())) {
+            return;
+        }
+        
+        // Check if player can enter the new territory
+        if (!this.plugin.getTerritoryManager().getAdvancedProtectionManager()
+            .canEnterTerritory(event.getPlayer(), event.getTo())) {
+            event.setCancelled(true);
+            MessageUtil.sendMessage(event.getPlayer(), "territory.protection-entry-denied");
         }
     }
 }

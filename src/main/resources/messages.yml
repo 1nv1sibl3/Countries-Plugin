@@ -85,6 +85,7 @@ territory:
   protection-block-place: "&cYou cannot place blocks in &e{country}&c territory!"
   protection-interaction: "&cYou cannot interact with that in &e{country}&c territory!"
   protection-entity-damage: "&cYou cannot harm entities in &e{country}&c territory!"
+  protection-entry-denied: "&cYou are not allowed to enter this territory!"
   
   # Auto-claim
   auto-claim-enabled: "&aAuto-claim enabled!"

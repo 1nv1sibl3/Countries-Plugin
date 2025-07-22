@@ -2,50 +2,20 @@ package xyz.inv1s1bl3.countries.territory;
 
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import xyz.inv1s1bl3.countries.CountriesPlugin;
-import xyz.inv1s1bl3.countries.database.entities.Territory;
-
-import java.util.Optional;
-import java.util.Set;
+import xyz.inv1s1bl3.countries.territory.protection.AdvancedProtectionManager;
 
 /**
- * Manages territory protection and restrictions
+ * Manages territory protection and restrictions (wrapper for advanced protection)
  */
 @RequiredArgsConstructor
 public final class ProtectionManager {
     
     private final CountriesPlugin plugin;
-    private final ChunkManager chunkManager;
-    
-    // Materials that require interaction permission
-    private static final Set<Material> INTERACTION_MATERIALS = Set.of(
-        Material.CHEST, Material.TRAPPED_CHEST, Material.ENDER_CHEST,
-        Material.FURNACE, Material.BLAST_FURNACE, Material.SMOKER,
-        Material.BREWING_STAND, Material.ENCHANTING_TABLE,
-        Material.ANVIL, Material.CHIPPED_ANVIL, Material.DAMAGED_ANVIL,
-        Material.CRAFTING_TABLE, Material.CARTOGRAPHY_TABLE,
-        Material.FLETCHING_TABLE, Material.SMITHING_TABLE,
-        Material.STONECUTTER, Material.LOOM, Material.COMPOSTER,
-        Material.BARREL, Material.HOPPER, Material.DROPPER, Material.DISPENSER,
-        Material.LEVER, Material.STONE_BUTTON, Material.OAK_BUTTON,
-        Material.STONE_PRESSURE_PLATE, Material.OAK_PRESSURE_PLATE,
-        Material.REDSTONE_WIRE, Material.REPEATER, Material.COMPARATOR,
-        Material.DAYLIGHT_DETECTOR, Material.OBSERVER,
-        Material.IRON_DOOR, Material.OAK_DOOR, Material.SPRUCE_DOOR,
-        Material.BIRCH_DOOR, Material.JUNGLE_DOOR, Material.ACACIA_DOOR,
-        Material.DARK_OAK_DOOR, Material.CRIMSON_DOOR, Material.WARPED_DOOR,
-        Material.IRON_TRAPDOOR, Material.OAK_TRAPDOOR, Material.SPRUCE_TRAPDOOR,
-        Material.BIRCH_TRAPDOOR, Material.JUNGLE_TRAPDOOR, Material.ACACIA_TRAPDOOR,
-        Material.DARK_OAK_TRAPDOOR, Material.CRIMSON_TRAPDOOR, Material.WARPED_TRAPDOOR,
-        Material.OAK_FENCE_GATE, Material.SPRUCE_FENCE_GATE, Material.BIRCH_FENCE_GATE,
-        Material.JUNGLE_FENCE_GATE, Material.ACACIA_FENCE_GATE, Material.DARK_OAK_FENCE_GATE,
-        Material.CRIMSON_FENCE_GATE, Material.WARPED_FENCE_GATE
-    );
+    private final AdvancedProtectionManager advancedProtectionManager;
     
     /**
      * Check if a player can break a block
@@ -54,31 +24,7 @@ public final class ProtectionManager {
      * @return true if allowed
      */
     public boolean canBreakBlock(final Player player, final Block block) {
-        if (player.hasPermission("countries.bypass")) {
-            return true;
-        }
-        
-        final Optional<Territory> territoryOpt = this.chunkManager.getTerritoryAt(block.getChunk());
-        if (territoryOpt.isEmpty()) {
-            return true; // Unclaimed territory
-        }
-        
-        final Territory territory = territoryOpt.get();
-        final Optional<TerritoryType> typeOpt = TerritoryType.fromKey(territory.getTerritoryType());
-        
-        if (typeOpt.isEmpty()) {
-            return false;
-        }
-        
-        final TerritoryType type = typeOpt.get();
-        
-        // Check if territory type allows breaking
-        if (!type.canBreak()) {
-            return false;
-        }
-        
-        // Check if player is a member of the country
-        return this.chunkManager.canPlayerBuild(player, block.getLocation());
+        return this.advancedProtectionManager.canBreakBlock(player, block);
     }
     
     /**
@@ -88,31 +34,7 @@ public final class ProtectionManager {
      * @return true if allowed
      */
     public boolean canPlaceBlock(final Player player, final Location location) {
-        if (player.hasPermission("countries.bypass")) {
-            return true;
-        }
-        
-        final Optional<Territory> territoryOpt = this.chunkManager.getTerritoryAt(location.getChunk());
-        if (territoryOpt.isEmpty()) {
-            return true; // Unclaimed territory
-        }
-        
-        final Territory territory = territoryOpt.get();
-        final Optional<TerritoryType> typeOpt = TerritoryType.fromKey(territory.getTerritoryType());
-        
-        if (typeOpt.isEmpty()) {
-            return false;
-        }
-        
-        final TerritoryType type = typeOpt.get();
-        
-        // Check if territory type allows building
-        if (!type.canBuild()) {
-            return false;
-        }
-        
-        // Check if player is a member of the country
-        return this.chunkManager.canPlayerBuild(player, location);
+        return this.advancedProtectionManager.canPlaceBlock(player, location);
     }
     
     /**
@@ -123,24 +45,7 @@ public final class ProtectionManager {
      * @return true if allowed
      */
     public boolean canInteract(final Player player, final Block block, final Action action) {
-        if (player.hasPermission("countries.bypass")) {
-            return true;
-        }
-        
-        final Optional<Territory> territoryOpt = this.chunkManager.getTerritoryAt(block.getChunk());
-        if (territoryOpt.isEmpty()) {
-            return true; // Unclaimed territory
-        }
-        
-        final Territory territory = territoryOpt.get();
-        
-        // Check if the block requires interaction permission
-        if (!INTERACTION_MATERIALS.contains(block.getType())) {
-            return true; // Not a protected interaction
-        }
-        
-        // Check if player is a member of the country
-        return this.chunkManager.canPlayerBuild(player, block.getLocation());
+        return this.advancedProtectionManager.canInteractWithBlock(player, block, action);
     }
     
     /**
@@ -149,15 +54,7 @@ public final class ProtectionManager {
      * @return true if PvP is allowed
      */
     public boolean isPvpAllowed(final Location location) {
-        final Optional<Territory> territoryOpt = this.chunkManager.getTerritoryAt(location.getChunk());
-        if (territoryOpt.isEmpty()) {
-            return true; // Unclaimed territory - use world settings
-        }
-        
-        final Territory territory = territoryOpt.get();
-        final Optional<TerritoryType> typeOpt = TerritoryType.fromKey(territory.getTerritoryType());
-        
-        return typeOpt.map(TerritoryType::allowPvp).orElse(false);
+        return this.advancedProtectionManager.areExplosionsAllowed(location);
     }
     
     /**
@@ -166,15 +63,7 @@ public final class ProtectionManager {
      * @return true if explosions are allowed
      */
     public boolean areExplosionsAllowed(final Location location) {
-        final Optional<Territory> territoryOpt = this.chunkManager.getTerritoryAt(location.getChunk());
-        if (territoryOpt.isEmpty()) {
-            return true; // Unclaimed territory
-        }
-        
-        final Territory territory = territoryOpt.get();
-        final Optional<TerritoryType> typeOpt = TerritoryType.fromKey(territory.getTerritoryType());
-        
-        return typeOpt.map(TerritoryType::allowExplosions).orElse(false);
+        return this.advancedProtectionManager.areExplosionsAllowed(location);
     }
     
     /**
@@ -183,70 +72,27 @@ public final class ProtectionManager {
      * @return true if fire spread is allowed
      */
     public boolean isFireSpreadAllowed(final Location location) {
-        final Optional<Territory> territoryOpt = this.chunkManager.getTerritoryAt(location.getChunk());
-        if (territoryOpt.isEmpty()) {
-            return true; // Unclaimed territory
-        }
-        
-        final Territory territory = territoryOpt.get();
-        final Optional<TerritoryType> typeOpt = TerritoryType.fromKey(territory.getTerritoryType());
-        
-        return typeOpt.map(TerritoryType::allowFireSpread).orElse(false);
+        return this.advancedProtectionManager.isFireSpreadAllowed(location);
     }
     
     /**
      * Check if mob spawning is allowed at a location
      * @param location Location to check
-     * @param isHostile Whether the mob is hostile
+     * @param entityType Entity type to spawn
      * @return true if spawning is allowed
      */
-    public boolean isMobSpawningAllowed(final Location location, final boolean isHostile) {
-        final Optional<Territory> territoryOpt = this.chunkManager.getTerritoryAt(location.getChunk());
-        if (territoryOpt.isEmpty()) {
-            return true; // Unclaimed territory
-        }
-        
-        final Territory territory = territoryOpt.get();
-        final Optional<TerritoryType> typeOpt = TerritoryType.fromKey(territory.getTerritoryType());
-        
-        if (typeOpt.isEmpty()) {
-            return true;
-        }
-        
-        final TerritoryType type = typeOpt.get();
-        
-        if (isHostile) {
-            return type.allowsMobSpawning();
-        } else {
-            return type.allowsAnimalSpawning();
-        }
+    public boolean isMobSpawningAllowed(final Location location, final org.bukkit.entity.EntityType entityType) {
+        return this.advancedProtectionManager.isMobSpawningAllowed(location, entityType);
     }
     
     /**
-     * Check if a player can damage an entity
-     * @param player Player attempting to damage
-     * @param entity Entity to damage
+     * Check if player can enter territory
+     * @param player Player attempting to enter
+     * @param location Location to enter
      * @return true if allowed
      */
-    public boolean canDamageEntity(final Player player, final Entity entity) {
-        if (player.hasPermission("countries.bypass")) {
-            return true;
-        }
-        
-        final Location location = entity.getLocation();
-        final Optional<Territory> territoryOpt = this.chunkManager.getTerritoryAt(location.getChunk());
-        
-        if (territoryOpt.isEmpty()) {
-            return true; // Unclaimed territory
-        }
-        
-        // If it's another player, check PvP rules
-        if (entity instanceof Player) {
-            return this.isPvpAllowed(location);
-        }
-        
-        // For other entities, check if player is a member of the country
-        return this.chunkManager.canPlayerBuild(player, location);
+    public boolean canEnterTerritory(final Player player, final Location location) {
+        return this.advancedProtectionManager.canEnterTerritory(player, location);
     }
     
     /**
@@ -255,38 +101,7 @@ public final class ProtectionManager {
      * @return Protection status description
      */
     public String getProtectionStatus(final Location location) {
-        final Optional<Territory> territoryOpt = this.chunkManager.getTerritoryAt(location.getChunk());
-        
-        if (territoryOpt.isEmpty()) {
-            return "This area is unclaimed and unprotected.";
-        }
-        
-        final Territory territory = territoryOpt.get();
-        final Optional<xyz.inv1s1bl3.countries.database.entities.Country> countryOpt = 
-            this.plugin.getCountryManager().getCountry(territory.getCountryId());
-        
-        if (countryOpt.isEmpty()) {
-            return "This area has unknown protection status.";
-        }
-        
-        final xyz.inv1s1bl3.countries.database.entities.Country country = countryOpt.get();
-        final Optional<TerritoryType> typeOpt = TerritoryType.fromKey(territory.getTerritoryType());
-        
-        final StringBuilder status = new StringBuilder();
-        status.append("This ").append(typeOpt.map(TerritoryType::getDisplayName).orElse("territory"))
-              .append(" belongs to ").append(country.getFormattedName()).append(".");
-        
-        if (typeOpt.isPresent()) {
-            final TerritoryType type = typeOpt.get();
-            status.append("\nProtections: ");
-            
-            if (!type.canBuild()) status.append("No Building ");
-            if (!type.canBreak()) status.append("No Breaking ");
-            if (!type.allowPvp()) status.append("No PvP ");
-            if (!type.allowExplosions()) status.append("No Explosions ");
-            if (!type.allowFireSpread()) status.append("No Fire Spread ");
-        }
-        
-        return status.toString();
+        // TODO: Implement detailed protection status with new system
+        return "Protection status display not yet implemented with new system.";
     }
 }
