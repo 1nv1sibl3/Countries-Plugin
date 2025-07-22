@@ -1,0 +1,133 @@
+name: Countries
+version: '1.0.0-SNAPSHOT'
+main: xyz.inv1s1bl3.countries.CountriesPlugin
+api-version: '1.21'
+prefix: Countries
+authors: [inv1s1bl3]
+description: A comprehensive plugin for managing countries, territories, economy, and diplomacy
+website: https://github.com/inv1s1bl3/Countries
+
+depend: [Vault]
+softdepend: [PlaceholderAPI, WorldEdit, Dynmap]
+
+commands:
+  country:
+    description: Main country management command
+    usage: /<command> <subcommand> [args...]
+    permission: countries.command.country
+    aliases: [c, nation, n]
+  
+  territory:
+    description: Territory management command
+    usage: /<command> <subcommand> [args...]
+    permission: countries.command.territory
+    aliases: [t, land, claim]
+  
+  economy:
+    description: Economy management command
+    usage: /<command> <subcommand> [args...]
+    permission: countries.command.economy
+    aliases: [eco, money, balance]
+  
+  diplomacy:
+    description: Diplomacy management command
+    usage: /<command> <subcommand> [args...]
+    permission: countries.command.diplomacy
+    aliases: [diplo, relations]
+  
+  trade:
+    description: Trading system command
+    usage: /<command> <subcommand> [args...]
+    permission: countries.command.trade
+    aliases: [trading]
+  
+  legal:
+    description: Legal system command
+    usage: /<command> <subcommand> [args...]
+    permission: countries.command.legal
+    aliases: [law, court, crime]
+  
+  countries-admin:
+    description: Administrative commands
+    usage: /<command> <subcommand> [args...]
+    permission: countries.admin
+    aliases: [cadmin, countriesadmin]
+
+permissions:
+  countries.*:
+    description: Grants all Countries permissions
+    default: op
+    children:
+      countries.command.*: true
+      countries.admin: true
+  
+  countries.command.*:
+    description: Grants all command permissions
+    default: true
+    children:
+      countries.command.country: true
+      countries.command.territory: true
+      countries.command.economy: true
+      countries.command.diplomacy: true
+      countries.command.trade: true
+      countries.command.legal: true
+  
+  countries.command.country:
+    description: Allows use of country commands
+    default: true
+  
+  countries.command.territory:
+    description: Allows use of territory commands
+    default: true
+  
+  countries.command.economy:
+    description: Allows use of economy commands
+    default: true
+  
+  countries.command.diplomacy:
+    description: Allows use of diplomacy commands
+    default: true
+  
+  countries.command.trade:
+    description: Allows use of trade commands
+    default: true
+  
+  countries.command.legal:
+    description: Allows use of legal commands
+    default: true
+  
+  countries.admin:
+    description: Grants administrative access
+    default: op
+  
+  countries.bypass:
+    description: Bypasses all protections and restrictions
+    default: false
+  
+  countries.country.create:
+    description: Allows creating countries
+    default: true
+  
+  countries.country.dissolve:
+    description: Allows dissolving own country
+    default: true
+  
+  countries.territory.claim:
+    description: Allows claiming territory
+    default: true
+  
+  countries.territory.unclaim:
+    description: Allows unclaiming territory
+    default: true
+  
+  countries.economy.transfer:
+    description: Allows money transfers
+    default: true
+  
+  countries.trade.initiate:
+    description: Allows initiating trades
+    default: true
+  
+  countries.diplomacy.manage:
+    description: Allows managing diplomatic relations
+    default: false

@@ -462,7 +462,7 @@ public final class AdvancedProtectionManager {
     private boolean isMonster(final EntityType entityType) {
         return switch (entityType) {
             case ZOMBIE, SKELETON, CREEPER, SPIDER, ENDERMAN, WITCH, SLIME,
-                 MAGMA_CUBE, BLAZE, GHAST, WITHER_SKELETON, ZOMBIE_PIGMAN,
+                 MAGMA_CUBE, BLAZE, GHAST, WITHER_SKELETON,
                  ENDER_DRAGON, WITHER, GUARDIAN, ELDER_GUARDIAN, SHULKER,
                  VEX, VINDICATOR, EVOKER, ILLUSIONER, RAVAGER, PILLAGER,
                  ZOMBIFIED_PIGLIN, PIGLIN, PIGLIN_BRUTE, ZOGLIN, WARDEN -> true;

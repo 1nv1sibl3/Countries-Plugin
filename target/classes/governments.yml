@@ -1,0 +1,522 @@
+# Government Types Configuration
+# Different forms of government and their characteristics
+
+government-types:
+  monarchy:
+    display-name: "&6Monarchy"
+    description: "Rule by a single sovereign"
+    
+    # Hierarchy and roles
+    roles:
+      monarch:
+        display-name: "&6Monarch"
+        permissions:
+          - "countries.country.manage"
+          - "countries.territory.manage"
+          - "countries.economy.manage"
+          - "countries.diplomacy.manage"
+          - "countries.legal.manage"
+          - "countries.members.manage"
+        salary: 1000.0
+        max-count: 1
+        
+      noble:
+        display-name: "&5Noble"
+        permissions:
+          - "countries.territory.claim"
+          - "countries.economy.access"
+          - "countries.members.invite"
+        salary: 500.0
+        max-count: 3
+        
+      knight:
+        display-name: "&cKnight"
+        permissions:
+          - "countries.territory.claim"
+          - "countries.legal.enforce"
+        salary: 300.0
+        max-count: 5
+        
+      citizen:
+        display-name: "&eCitizen"
+        permissions:
+          - "countries.territory.build"
+          - "countries.economy.basic"
+        salary: 100.0
+        max-count: -1  # unlimited
+        
+      peasant:
+        display-name: "&7Peasant"
+        permissions:
+          - "countries.basic"
+        salary: 50.0
+        max-count: -1  # unlimited
+    
+    # Government mechanics
+    mechanics:
+      succession-type: "hereditary"  # hereditary, elective, appointive
+      term-length: -1  # -1 = permanent, otherwise in days
+      requires-majority: false
+      can-be-overthrown: true
+      overthrow-method: "revolution"
+    
+    # Special abilities
+    abilities:
+      - "royal_decree"  # Leader can make instant decisions
+      - "noble_privileges"  # Nobles get special benefits
+      - "divine_right"  # Reduced crime in territory
+    
+    # Economic modifiers
+    economy:
+      tax-collection-efficiency: 1.1
+      treasury-interest-rate: 0.02
+      trade-bonus: 1.05
+      
+  democracy:
+    display-name: "&bDemocracy"
+    description: "Rule by the people through elections"
+    
+    roles:
+      president:
+        display-name: "&bPresident"
+        permissions:
+          - "countries.country.manage"
+          - "countries.diplomacy.manage"
+          - "countries.legal.propose"
+        salary: 800.0
+        max-count: 1
+        
+      minister:
+        display-name: "&5Minister"
+        permissions:
+          - "countries.territory.manage"
+          - "countries.economy.manage"
+          - "countries.members.manage"
+        salary: 600.0
+        max-count: 4
+        
+      representative:
+        display-name: "&aRepresentative"
+        permissions:
+          - "countries.legal.vote"
+          - "countries.members.invite"
+        salary: 400.0
+        max-count: 8
+        
+      citizen:
+        display-name: "&eCitizen"
+        permissions:
+          - "countries.territory.build"
+          - "countries.economy.basic"
+          - "countries.legal.vote"
+        salary: 200.0
+        max-count: -1
+    
+    mechanics:
+      succession-type: "elective"
+      term-length: 90  # 3 months
+      requires-majority: true
+      can-be-overthrown: true
+      overthrow-method: "impeachment"
+      voting-enabled: true
+      proposal-threshold: 3  # minimum representatives to propose laws
+    
+    abilities:
+      - "democratic_voting"
+      - "term_limits"
+      - "citizen_rights"
+    
+    economy:
+      tax-collection-efficiency: 1.0
+      treasury-interest-rate: 0.015
+      trade-bonus: 1.1
+      
+  republic:
+    display-name: "&9Republic"
+    description: "Representative government with elected officials"
+    
+    roles:
+      consul:
+        display-name: "&9Consul"
+        permissions:
+          - "countries.country.manage"
+          - "countries.diplomacy.manage"
+        salary: 700.0
+        max-count: 2
+        
+      senator:
+        display-name: "&5Senator"
+        permissions:
+          - "countries.legal.manage"
+          - "countries.economy.manage"
+          - "countries.legal.vote"
+        salary: 500.0
+        max-count: 6
+        
+      magistrate:
+        display-name: "&cMagistrate"
+        permissions:
+          - "countries.territory.manage"
+          - "countries.legal.enforce"
+        salary: 400.0
+        max-count: 4
+        
+      citizen:
+        display-name: "&eCitizen"
+        permissions:
+          - "countries.territory.build"
+          - "countries.economy.basic"
+          - "countries.legal.vote"
+        salary: 150.0
+        max-count: -1
+    
+    mechanics:
+      succession-type: "elective"
+      term-length: 120  # 4 months
+      requires-majority: true
+      can-be-overthrown: true
+      overthrow-method: "vote_of_no_confidence"
+      voting-enabled: true
+    
+    abilities:
+      - "senate_decisions"
+      - "checks_and_balances"
+      - "civic_duty"
+    
+    economy:
+      tax-collection-efficiency: 1.05
+      treasury-interest-rate: 0.018
+      trade-bonus: 1.08
+      
+  federation:
+    display-name: "&3Federation"
+    description: "Union of semi-autonomous regions"
+    
+    roles:
+      chancellor:
+        display-name: "&3Chancellor"
+        permissions:
+          - "countries.country.manage"
+          - "countries.diplomacy.manage"
+        salary: 900.0
+        max-count: 1
+        
+      governor:
+        display-name: "&5Governor"
+        permissions:
+          - "countries.territory.manage"
+          - "countries.economy.regional"
+        salary: 600.0
+        max-count: 5
+        
+      delegate:
+        display-name: "&aDelegate"
+        permissions:
+          - "countries.members.manage"
+          - "countries.legal.regional"
+        salary: 400.0
+        max-count: 10
+        
+      citizen:
+        display-name: "&eCitizen"
+        permissions:
+          - "countries.territory.build"
+          - "countries.economy.basic"
+        salary: 180.0
+        max-count: -1
+    
+    mechanics:
+      succession-type: "elective"
+      term-length: 150  # 5 months
+      requires-majority: true
+      can-be-overthrown: true
+      overthrow-method: "federal_recall"
+      regional-autonomy: true
+    
+    abilities:
+      - "regional_government"
+      - "federal_oversight"
+      - "shared_resources"
+    
+    economy:
+      tax-collection-efficiency: 0.95
+      treasury-interest-rate: 0.02
+      trade-bonus: 1.15
+      
+  oligarchy:
+    display-name: "&8Oligarchy"
+    description: "Rule by a small group of elites"
+    
+    roles:
+      oligarch:
+        display-name: "&8Oligarch"
+        permissions:
+          - "countries.country.manage"
+          - "countries.territory.manage"
+          - "countries.economy.manage"
+          - "countries.diplomacy.manage"
+          - "countries.legal.manage"
+        salary: 1200.0
+        max-count: 3
+        
+      elite:
+        display-name: "&5Elite"
+        permissions:
+          - "countries.territory.claim"
+          - "countries.economy.access"
+          - "countries.members.manage"
+        salary: 700.0
+        max-count: 6
+        
+      enforcer:
+        display-name: "&cEnforcer"
+        permissions:
+          - "countries.legal.enforce"
+          - "countries.territory.protect"
+        salary: 400.0
+        max-count: 8
+        
+      subject:
+        display-name: "&7Subject"
+        permissions:
+          - "countries.basic"
+        salary: 80.0
+        max-count: -1
+    
+    mechanics:
+      succession-type: "appointive"
+      term-length: -1
+      requires-majority: false
+      can-be-overthrown: true
+      overthrow-method: "coup"
+      council-decisions: true
+    
+    abilities:
+      - "elite_privilege"
+      - "wealth_concentration"
+      - "social_control"
+    
+    economy:
+      tax-collection-efficiency: 1.15
+      treasury-interest-rate: 0.025
+      trade-bonus: 1.0
+      
+  theocracy:
+    display-name: "&dTheocracy"
+    description: "Rule by religious authority"
+    
+    roles:
+      high_priest:
+        display-name: "&dHigh Priest"
+        permissions:
+          - "countries.country.manage"
+          - "countries.legal.manage"
+          - "countries.diplomacy.manage"
+        salary: 800.0
+        max-count: 1
+        
+      priest:
+        display-name: "&5Priest"
+        permissions:
+          - "countries.territory.manage"
+          - "countries.legal.enforce"
+          - "countries.members.manage"
+        salary: 500.0
+        max-count: 4
+        
+      acolyte:
+        display-name: "&bAcolyte"
+        permissions:
+          - "countries.territory.build"
+          - "countries.economy.basic"
+        salary: 300.0
+        max-count: 8
+        
+      believer:
+        display-name: "&eBeliever"
+        permissions:
+          - "countries.basic"
+          - "countries.territory.build"
+        salary: 120.0
+        max-count: -1
+        
+      heretic:
+        display-name: "&cHeretic"
+        permissions: []
+        salary: 0.0
+        max-count: -1
+    
+    mechanics:
+      succession-type: "divine_appointment"
+      term-length: -1
+      requires-majority: false
+      can-be-overthrown: true
+      overthrow-method: "religious_schism"
+      religious-law: true
+    
+    abilities:
+      - "divine_mandate"
+      - "religious_unity"
+      - "moral_authority"
+    
+    economy:
+      tax-collection-efficiency: 1.0
+      treasury-interest-rate: 0.01
+      trade-bonus: 0.95
+      tithe-system: true
+      
+  autocracy:
+    display-name: "&4Autocracy"
+    description: "Absolute rule by a single leader"
+    
+    roles:
+      autocrat:
+        display-name: "&4Autocrat"
+        permissions:
+          - "countries.*"
+        salary: 1500.0
+        max-count: 1
+        
+      lieutenant:
+        display-name: "&cLieutenant"
+        permissions:
+          - "countries.territory.manage"
+          - "countries.legal.enforce"
+          - "countries.members.manage"
+        salary: 600.0
+        max-count: 3
+        
+      loyalist:
+        display-name: "&6Loyalist"
+        permissions:
+          - "countries.territory.build"
+          - "countries.economy.basic"
+        salary: 250.0
+        max-count: 10
+        
+      subject:
+        display-name: "&7Subject"
+        permissions:
+          - "countries.basic"
+        salary: 100.0
+        max-count: -1
+    
+    mechanics:
+      succession-type: "hereditary"
+      term-length: -1
+      requires-majority: false
+      can-be-overthrown: true
+      overthrow-method: "revolution"
+      absolute-power: true
+    
+    abilities:
+      - "absolute_authority"
+      - "instant_decisions"
+      - "loyalty_enforcement"
+    
+    economy:
+      tax-collection-efficiency: 1.2
+      treasury-interest-rate: 0.01
+      trade-bonus: 0.9
+      
+  anarchy:
+    display-name: "&7Anarchy"
+    description: "No formal government structure"
+    
+    roles:
+      leader:
+        display-name: "&7Leader"
+        permissions:
+          - "countries.country.basic"
+          - "countries.members.invite"
+        salary: 200.0
+        max-count: 1
+        
+      member:
+        display-name: "&eMember"
+        permissions:
+          - "countries.territory.build"
+          - "countries.economy.basic"
+          - "countries.territory.claim"
+        salary: 150.0
+        max-count: -1
+    
+    mechanics:
+      succession-type: "consensus"
+      term-length: 30  # 1 month
+      requires-majority: true
+      can-be-overthrown: false
+      consensus-required: true
+    
+    abilities:
+      - "collective_ownership"
+      - "self_governance"
+      - "mutual_aid"
+    
+    economy:
+      tax-collection-efficiency: 0.5
+      treasury-interest-rate: 0.005
+      trade-bonus: 1.2
+
+# Government Change Settings
+government-changes:
+  # Allow government type changes
+  enabled: true
+  
+  # Cost to change government type
+  change-cost: 5000.0
+  
+  # Cooldown between government changes (days)
+  change-cooldown: 30
+  
+  # Require majority vote for government change
+  require-vote: true
+  
+  # Vote threshold (percentage of active citizens)
+  vote-threshold: 60
+  
+  # Transition period (days)
+  transition-period: 7
+
+# Revolution and Overthrow Settings
+revolutions:
+  # Enable revolution mechanics
+  enabled: true
+  
+  # Minimum support percentage for revolution
+  min-support: 40
+  
+  # Revolution cost
+  cost: 10000.0
+  
+  # Revolution duration (hours)
+  duration: 72
+  
+  # Success determines new government
+  random-government: false
+  
+  # Consequences of failed revolution
+  failure-consequences:
+    - "exile_revolutionaries"
+    - "confiscate_property"
+    - "impose_martial_law"
+
+# Election Settings
+elections:
+  # Election duration (hours)
+  duration: 48
+  
+  # Campaign period before election (hours)
+  campaign-period: 72
+  
+  # Minimum candidates required
+  min-candidates: 2
+  
+  # Voting method
+  voting-method: "simple_majority"  # simple_majority, ranked_choice, approval
+  
+  # Enable campaign spending
+  enable-campaigns: true
+  
+  # Maximum campaign spending
+  max-campaign-spending: 5000.0
