@@ -1,12 +1,157 @@
 # Countries Plugin Configuration
-# Main configuration file for the Countries plugin
+# Version: 1.0.0
 
-# Database Configuration
+# General Settings
+general:
+  # Enable debug mode for detailed logging
+  enable-debug: false
+  
+  # Auto-save interval in seconds (300 = 5 minutes)
+  auto-save-interval: 300
+  
+  # Maximum number of countries a player can own
+  max-countries-per-player: 1
+  
+  # Maximum number of territories per country
+  max-territories-per-country: 50
+  
+  # Default language for messages
+  language: "en"
+
+# Economy Settings
+economy:
+  # Starting balance for new players
+  starting-balance: 1000.0
+  
+  # Tax collection interval in seconds (86400 = 24 hours)
+  tax-collection-interval: 86400
+  
+  # Default tax rate (0.05 = 5%)
+  default-tax-rate: 0.05
+  
+  # Maximum tax rate allowed (0.25 = 25%)
+  max-tax-rate: 0.25
+  
+  # Enable integration with Vault economy
+  use-vault: true
+  
+  # Currency symbol
+  currency-symbol: "$"
+
+# Territory Settings
+territory:
+  # Default claiming limits (can be overridden by permissions)
+  default-max-chunks: 50
+  default-max-territories: 5
+  
+  # Cost to claim a chunk
+  chunk-claim-cost: 100.0
+  
+  # Maximum chunks per territory
+  max-chunks-per-territory: 100
+  
+  # Allow claiming in wilderness (outside of countries)
+  allow-wilderness-claims: true
+  
+  # Enable territory protection
+  enable-protection: true
+  
+  # Show territory borders with particles
+  show-borders: true
+  
+  # Territory upkeep cost per chunk per day
+  upkeep-cost-per-chunk: 5.0
+  
+  # Advanced territory features
+  enable-sub-areas: true
+  enable-rental-system: true
+  enable-territory-taxes: true
+  enable-role-system: true
+  
+  # Sub-area limits
+  max-sub-areas-per-territory: 10
+  max-sub-area-size: 1000
+  
+  # Rental settings
+  default-rent-duration: 30
+  max-rent-price: 10000.0
+  
+  # Tax settings
+  max-territory-tax-rate: 0.20
+  tax-collection-interval: 86400
+  
+  # Particle border settings
+  particles:
+    enabled: true
+    duration: 10
+    min-height: 60
+    max-height: 80
+
+# Diplomacy Settings
+diplomacy:
+  # Cost to form an alliance
+  alliance-cost: 5000.0
+  
+  # Cost to declare war
+  war-declaration-cost: 10000.0
+  
+  # Enable trade agreements
+  enable-trade: true
+  
+  # Maximum number of allies per country
+  max-allies: 10
+
+# Country Settings
+country:
+  # Minimum name length
+  min-name-length: 3
+  
+  # Maximum name length
+  max-name-length: 16
+  
+  # Cost to create a country
+  creation-cost: 10000.0
+  
+  # Enable custom country flags
+  enable-flags: true
+  
+  # Maximum number of citizens per country
+  max-citizens: 100
+
+# Law & Order Settings
+law:
+  # Enable law system
+  enabled: true
+  
+  # Maximum fine amount
+  max-fine-amount: 10000.0
+  
+  # Jail time multiplier (minutes per crime severity)
+  jail-time-multiplier: 5
+  
+  # Enable bounty system
+  enable-bounties: true
+
+# GUI Settings
+gui:
+  # Enable GUI interfaces
+  enabled: true
+  
+  # GUI update interval in ticks (20 = 1 second)
+  update-interval: 20
+  
+  # Enable sound effects
+  enable-sounds: true
+
+# Database Settings
 database:
-  # Database type: sqlite (only SQLite supported currently)
-  type: sqlite
-  # Database file path (relative to plugin data folder)
-  file: countries.db
+  # Database type: sqlite, mysql
+  type: "sqlite"
+  
+  # SQLite settings
+  sqlite:
+    filename: "countries.db"
+    
   # Connection pool settings
   pool:
     maximum-pool-size: 10
@@ -15,248 +160,16 @@ database:
     idle-timeout: 600000
     max-lifetime: 1800000
 
-# General Plugin Settings
-general:
-  # Enable debug logging
-  debug: false
-  # Language for messages (currently only 'en' supported)
-  language: en
-  # Save data interval in minutes
-  save-interval: 5
-  # Enable automatic backups
-  auto-backup: true
-  # Backup interval in hours
-  backup-interval: 24
-
-# Country Settings
-countries:
-  # Maximum number of countries a player can create
-  max-countries-per-player: 1
-  # Minimum name length for countries
-  min-name-length: 3
-  # Maximum name length for countries
-  max-name-length: 20
-  # Characters allowed in country names (regex)
-  allowed-name-characters: "^[a-zA-Z0-9_\\-\\s]+$"
-  # Cost to create a country
-  creation-cost: 1000.0
-  # Daily upkeep cost for countries
-  daily-upkeep: 100.0
-  # Maximum number of citizens per country
-  max-citizens: 50
-  # Enable country flags
-  enable-flags: true
-  # Maximum flag description length
-  max-flag-description: 500
-
-# Territory Settings
-territories:
-  # Enable territory claiming
-  enabled: true
-  # Maximum chunks a country can claim
-  max-chunks-per-country: 100
-  # Base price per chunk
-  base-chunk-price: 100.0
-  # Price multiplier for distance from capital
-  distance-multiplier: 1.1
-  # Enable auto-claiming while walking
-  enable-auto-claim: true
-  # Auto-claim requires permission
-  auto-claim-requires-permission: true
-  # Show territory borders with particles
-  show-borders: true
-  # Border particle type
-  border-particle: "VILLAGER_HAPPY"
-  # Border particle density (particles per block)
-  border-density: 0.5
-  # Enable territory protection
-  protection-enabled: true
-  # Default protection settings for new territories
-  default-protection:
-    block-break: true
-    block-place: true
-    entity-damage: true
-    interaction: true
-    fire-spread: false
-    explosion-damage: true
-  # Territory maintenance
-  maintenance-interval: 24
-  # Base maintenance cost per chunk per day
-  base-maintenance-cost: 10.0
-  # Enable territory value calculation
-  enable-territory-value: true
-  # Territory abandonment grace period (days)
-  abandonment-grace-period: 7
-
-# Economy Settings
-economy:
-  # Enable economy features
-  enabled: true
-  # Use Vault for economy (if available)
-  use-vault: true
-  # Starting balance for new players
-  starting-balance: 1000.0
-  # Maximum balance a player can have
-  max-balance: 1000000.0
-  # Enable country treasuries
-  enable-treasuries: true
-  # Treasury starting balance
-  treasury-starting-balance: 5000.0
-  # Enable taxation
-  enable-taxes: true
-  # Default tax rate (percentage)
-  default-tax-rate: 5.0
-  # Maximum tax rate
-  max-tax-rate: 20.0
-  # Tax collection interval in hours
-  tax-collection-interval: 24
-  # Enable salary payments
-  enable-salaries: true
-  # Salary payment interval in hours
-  salary-interval: 24
-  # Enable progressive taxation
-  progressive-tax: true
-  # Wealth tax threshold
-  wealth-tax-threshold: 100000.0
-  # Wealth tax rate (percentage)
-  wealth-tax-rate: 1.0
-  # Property tax rate (percentage of territory value)
-  property-tax-rate: 0.5
-  # Enable bankruptcy system
-  enable-bankruptcy: true
-  # Bankruptcy threshold (negative treasury balance)
-  bankruptcy-threshold: -1000.0
-  # Minimum tax amount
-  min-tax: 1.0
-  # Maximum tax amount
-  max-tax: 50000.0
-  # Enable economic auditing
-  enable-auditing: true
-  # Audit interval in hours
-  audit-interval: 168
-
-# Trading Settings
-trading:
-  # Enable trading system
-  enabled: true
-  # Maximum items per trade
-  max-items-per-trade: 27
-  # Trade timeout in minutes
-  trade-timeout: 10
-  # Enable trading fees
-  enable-fees: false
-  # Trading fee percentage
-  fee-percentage: 2.0
-  # Enable country-to-country trading
-  enable-country-trading: true
-
-# Diplomacy Settings
-diplomacy:
-  # Enable diplomacy system
-  enabled: true
-  # Enable war declarations
-  enable-war: true
-  # War declaration cooldown in hours
-  war-declaration-cooldown: 168  # 1 week
-  # Minimum relation change interval in minutes
-  relation-change-cooldown: 60
-  # Enable alliances
-  enable-alliances: true
-  # Maximum number of allies per country
-  max-allies: 5
-  # Alliance creation cost
-  alliance-cost: 5000.0
-
-# Legal System Settings
-legal:
-  # Enable legal system
-  enabled: true
-  # Enable crime recording
-  enable-crime-recording: true
-  # Enable arrests and imprisonment
-  enable-imprisonment: true
-  # Maximum jail time in minutes
-  max-jail-time: 120
-  # Enable fines
-  enable-fines: true
-  # Maximum fine amount
-  max-fine: 10000.0
-  # Enable custom country laws
-  enable-custom-laws: true
-  # Maximum number of laws per country
-  max-laws-per-country: 20
-
-# Chat Settings
-chat:
-  # Enable country chat channels
-  enable-country-chat: true
-  # Country chat prefix
-  country-chat-prefix: "[Country]"
-  # Enable government chat
-  enable-government-chat: true
-  # Government chat prefix
-  government-chat-prefix: "[Gov]"
-  # Enable alliance chat
-  enable-alliance-chat: true
-  # Alliance chat prefix
-  alliance-chat-prefix: "[Alliance]"
-  # Chat message format
-  message-format: "{prefix} {player}: {message}"
-
-# GUI Settings
-gui:
-  # Enable GUI interfaces
-  enabled: true
-  # GUI update interval in ticks
-  update-interval: 20
-  # Default GUI size (must be multiple of 9)
-  default-size: 54
-  # Enable GUI sounds
-  enable-sounds: true
-  # GUI click sound
-  click-sound: "UI_BUTTON_CLICK"
-
-# Visualization Settings
-visualization:
-  # Enable particle effects
-  enabled: true
-  # Particle render distance
-  render-distance: 32
-  # Particle update interval in ticks
-  update-interval: 10
-  # Enable territory highlighting
-  enable-territory-highlighting: true
-  # Enable country flags display
-  enable-flag-display: true
-
 # Performance Settings
 performance:
-  # Maximum database operations per tick
-  max-db-operations-per-tick: 5
+  # Enable async operations
+  async-operations: true
+  
+  # Cache size for countries
+  country-cache-size: 1000
+  
+  # Cache size for territories
+  territory-cache-size: 5000
+  
   # Cache expiry time in minutes
-  cache-expiry: 30
-  # Enable async processing
-  enable-async: true
-  # Thread pool size for async operations
-  thread-pool-size: 4
-
-# Integration Settings
-integrations:
-  # PlaceholderAPI settings
-  placeholderapi:
-    enabled: true
-    # Available placeholders will be registered automatically
-  
-  # WorldEdit settings
-  worldedit:
-    enabled: true
-    # Enable territory selection with WorldEdit
-    enable-selection: true
-  
-  # Dynmap settings
-  dynmap:
-    enabled: true
-    # Show territories on dynmap
-    show-territories: true
-    # Territory layer name
-    layer-name: "Countries"
+  cache-expiry-minutes: 30

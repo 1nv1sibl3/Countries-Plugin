@@ -1,354 +1,233 @@
-# Minecraft Countries Plugin - Development Plan
+# Countries Plugin Development Plan
 
 ## Project Overview
-A comprehensive Minecraft plugin for managing countries, territories, economy, diplomacy, and governance on Paper servers.
+A comprehensive Minecraft plugin for Paper API 1.21.4+ that allows players to create countries, manage territories, handle economics, diplomacy, and governance systems.
 
-## Development Milestones
-
-### Phase 1: Core Infrastructure (Foundation)
-**Estimated Time: 2-3 weeks**
-
-#### Module 1.1: Project Setup & Base Framework
-- [x] Maven project structure
-- [x] Paper API integration
-- [x] Plugin main class and lifecycle
-- [x] Base configuration system
-- [x] SQLite database initialization
-- [x] Lombok integration
-
-#### Module 1.2: Database Layer
-- [x] Database schema design
-- [x] Entity models (Country, Territory, Player, Transaction, etc.)
-- [x] Repository pattern implementation
-- [x] Database migrations system
-- [x] Connection pooling and management
-
-#### Module 1.3: Configuration System
-- [x] Main plugin configuration
-- [x] Message localization system
-- [x] Territory type configurations
-- [x] Government type configurations
-- [x] Economy settings
-
-### Phase 2: Core Country System (Weeks 3-5)
-
-#### Module 2.1: Country Management
-- [x] Country creation and dissolution
-- [x] Country information storage
-- [x] Government type implementation
-- [x] Hierarchy management (leaders, ministers, citizens)
-- [x] Country flags and descriptions
-- [x] Country statistics tracking
-
-#### Module 2.2: Player Management
-- [x] Player data integration
-- [x] Country membership system
-- [x] Role assignment and permissions
-- [x] Activity tracking
--  Player statistics
-
-#### Module 2.3: Permission System
-- [ ] Role-based permission framework
-- [ ] Government-specific permissions
-- [ ] Territory-based permissions
-- [ ] Command permission integration
-
-### Phase 3: Territory System (Weeks 5-7)
-
-#### Module 3.1: Chunk Management
-- [ ] Chunk claiming system
-- [ ] Territory type assignment
-- [ ] Auto-claim functionality
-- [ ] Territory boundaries and validation
-- [ ] Chunk pricing system
-
-#### Module 3.2: Territory Types
-- [ ] Residential territories
-- [ ] Commercial territories
-- [ ] Industrial territories
-- [ ] Agricultural territories
-- [ ] Military territories
-- [ ] Capital territories
-- [ ] Territory-specific restrictions and bonuses
-
-#### Module 3.3: Protection System
-- [ ] Block break/place protection
-- [ ] Interaction protection
-- [ ] PvP management in territories
-- [ ] Authority-based overrides
-- [ ] Griefing prevention
-
-### Phase 4: Economy System (Weeks 7-9)
-
-#### Module 4.1: Vault Integration
-- [ ] Vault API implementation
-- [ ] Player balance management
-- [ ] Economy provider registration
-- [ ] Transaction validation
-
-#### Module 4.2: Country Economy
-- [ ] Country treasury system
-- [ ] Tax collection mechanisms
-- [ ] Passive income sources
-- [ ] Role-based salary payments
-- [ ] Budget management
-
-#### Module 4.3: Transaction System
-- [ ] Money transfers
-- [ ] Transaction logging
-- [ ] Transaction history
-- [ ] Audit trails
-- [ ] Economic statistics
-
-### Phase 5: Trading System (Weeks 9-10)
-
-#### Module 5.1: Player Trading
-- [x] Secure trading interface
-- [x] Trade confirmation system
-- [x] Trade history logging
-- [x] Item validation and security
-
-#### Module 5.2: Country Trading
-- [ ] Country-to-country agreements
-- [ ] Trade deal management
-- [ ] Economic partnerships
-- [ ] Resource exchange systems
-
-### Phase 6: Diplomacy System (Weeks 10-12)
-
-#### Module 6.1: Diplomatic Relations
-- [ ] Relation types (Ally, Friendly, Neutral, Unfriendly, Enemy)
-- [ ] Relation management interface
-- [ ] Diplomatic history tracking
-- [ ] Automatic relation effects
-
-#### Module 6.2: War and Peace
-- [ ] War declaration system
-- [ ] Peace treaty negotiations
-- [ ] War effects and restrictions
-- [ ] Ceasefire mechanisms
-
-#### Module 6.3: Alliance System
-- [ ] Alliance creation and management
-- [ ] Alliance benefits and obligations
-- [ ] Collective defense agreements
-- [ ] Alliance chat and coordination
-
-### Phase 7: Legal System (Weeks 12-14)
-
-#### Module 7.1: Law Framework
-- [ ] Country-specific law creation
-- [ ] Law enforcement mechanisms
-- [ ] Legal authority hierarchy
-- [ ] Law violation tracking
-
-#### Module 7.2: Crime and Punishment
-- [ ] Crime recording system
-- [ ] Arrest and imprisonment
-- [ ] Fine management
-- [ ] Criminal record tracking
-
-#### Module 7.3: Court System
-- [ ] Trial scheduling
-- [ ] Evidence management
-- [ ] Verdict enforcement
-- [ ] Appeal processes
-
-### Phase 8: GUI and User Interface (Weeks 14-16)
-
-#### Module 8.1: Country Dashboards
-- [ ] Leader dashboard interface
-- [ ] Citizen information panels
-- [ ] Country statistics display
-- [ ] Government management GUI
-
-#### Module 8.2: Territory Management
-- [ ] Territory map visualization
-- [ ] Territory settings interface
-- [ ] Claiming/unclaiming GUI
-- [ ] Territory type management
-
-#### Module 8.3: Economy Interface
-- [ ] Balance and transaction history
-- [ ] Treasury management
-- [ ] Tax settings interface
-- [ ] Trading interfaces
-
-### Phase 9: Communication Systems (Weeks 16-17)
-
-#### Module 9.1: Chat Systems
-- [ ] Country-specific chat channels
-- [ ] Government chat (leaders/ministers)
-- [ ] Alliance chat systems
-- [ ] Chat moderation tools
-
-#### Module 9.2: Messaging System
-- [ ] Private messaging
-- [ ] Official announcements
-- [ ] Diplomatic communications
-- [ ] System notifications
-
-### Phase 10: Visualization and Feedback (Weeks 17-18)
-
-#### Module 10.1: Visual Effects
-- [ ] Territory border particles
-- [ ] Country flag displays
-- [ ] Status indicators
-- [ ] Interactive visual feedback
-
-#### Module 10.2: Scoreboard Integration
-- [ ] Country information display
-- [ ] Player location tracking
-- [ ] Real-time statistics
-- [ ] Dynamic content updates
-
-### Phase 11: Additional Features (Weeks 18-20)
-
-#### Module 11.1: Invitation System
-- [ ] Country invitation management
-- [ ] Application system
-- [ ] Approval workflows
-- [ ] Invitation tracking
-
-#### Module 11.2: Activity Tracking
-- [ ] Player activity monitoring
-- [ ] Country activity statistics
-- [ ] Performance metrics
-- [ ] Activity-based rewards
-
-#### Module 11.3: Advanced Features
-- [ ] Event scheduling system
-- [ ] Country achievements
-- [ ] Reputation systems
-- [ ] Advanced statistics and analytics
-
-### Phase 12: Polish and Optimization (Weeks 20-22)
-
-#### Module 12.1: Performance Optimization
-- [ ] Database query optimization
-- [ ] Memory usage optimization
-- [ ] Async processing implementation
-- [ ] Performance monitoring
-
-#### Module 12.2: Testing and Quality Assurance
-- [ ] Unit testing implementation
-- [ ] Integration testing
-- [ ] Load testing
-- [ ] Bug fixing and stability improvements
-
-#### Module 12.3: Documentation and Release
-- [ ] API documentation
-- [ ] User guides and tutorials
-- [ ] Configuration examples
-- [ ] Release preparation
-
-## Package Structure
+## Architecture & Package Structure
 
 ```
 xyz.inv1s1bl3.countries/
 ├── CountriesPlugin.java (Main class)
+├── api/
+│   ├── CountriesAPI.java
+│   └── events/ (Custom events)
+├── commands/
+│   ├── CountryCommand.java
+│   ├── TerritoryCommand.java
+│   ├── EconomyCommand.java
 ├── config/
 │   ├── ConfigManager.java
-│   ├── MessageConfig.java
-│   ├── TerritoryConfig.java
-│   └── GovernmentConfig.java
-├── database/
-│   ├── DatabaseManager.java
-│   ├── entities/
-│   ├── repositories/
-│   └── migrations/
-├── country/
-│   ├── CountryManager.java
-│   ├── CountryService.java
-│   ├── GovernmentType.java
-│   └── models/
-├── territory/
-│   ├── TerritoryManager.java
-│   ├── TerritoryService.java
-│   ├── TerritoryType.java
-│   ├── ChunkManager.java
-│   └── ProtectionManager.java
-├── economy/
-│   ├── EconomyManager.java
-│   ├── VaultIntegration.java
-│   ├── TransactionManager.java
-│   └── TaxManager.java
-├── trading/
-│   ├── TradingManager.java
-│   ├── TradeSession.java
-│   └── TradeConfirmation.java
-├── diplomacy/
-│   ├── DiplomacyManager.java
-│   ├── RelationType.java
-│   ├── WarManager.java
-│   └── AllianceManager.java
-├── legal/
-│   ├── LegalManager.java
-│   ├── CrimeManager.java
-│   ├── LawManager.java
-│   └── CourtManager.java
-├── gui/
-│   ├── GuiManager.java
-│   ├── dashboards/
-│   ├── menus/
-│   └── interfaces/
-├── chat/
-│   ├── ChatManager.java
-│   ├── ChannelManager.java
-│   └── MessageHandler.java
-├── visualization/
-│   ├── ParticleManager.java
-│   ├── BorderRenderer.java
-│   └── EffectManager.java
-├── commands/
-│   ├── CommandManager.java
+│   ├── MessagesConfig.java
+│   └── PluginConfig.java
+├── core/
 │   ├── country/
+│   │   ├── Country.java
+│   │   ├── CountryManager.java
+│   │   ├── CitizenRole.java
+│   │   └── GovernmentType.java
 │   ├── territory/
+│   │   ├── Territory.java
+│   │   ├── TerritoryManager.java
+│   │   ├── TerritoryType.java
+│   │   └── ChunkClaimManager.java
 │   ├── economy/
-│   └── admin/
+│   │   ├── EconomyManager.java
+│   │   ├── BankAccount.java
+│   │   ├── Transaction.java
+│   │   └── TaxSystem.java
+│   ├── diplomacy/
+│   │   ├── DiplomacyManager.java
+│   │   ├── DiplomaticRelation.java
+│   │   ├── Alliance.java
+│   │   └── Trade.java
+│   └── law/
+│       ├── LawSystem.java
+│       ├── Crime.java
+│       ├── Law.java
+│       └── Arrest.java
+├── gui/
+│   ├── GUIManager.java
+│   ├── CountryGUI.java
+│   ├── TerritoryGUI.java
+│   ├── EconomyGUI.java
 ├── listeners/
-│   ├── PlayerEventListener.java
-│   ├── BlockEventListener.java
-│   ├── ChatEventListener.java
-│   └── EconomyEventListener.java
+│   ├── PlayerListener.java
+│   ├── ChunkListener.java
+│   └── GUIListener.java
+├── storage/
+│   ├── DataManager.java
+│   ├── CountryStorage.java
+│   ├── TerritoryStorage.java
+│   └── EconomyStorage.java
 └── utils/
-    ├── PermissionUtil.java
-    ├── MessageUtil.java
-    ├── LocationUtil.java
-    └── ValidationUtil.java
+    ├── ChatUtils.java
+    ├── ItemUtils.java
+    └── LocationUtils.java
 ```
 
-## Database Schema Overview
+## Development Phases
 
-### Core Tables
-- **countries**: Country information and settings
-- **players**: Player data and country membership
-- **territories**: Chunk ownership and territory data
-- **transactions**: Economic transaction history
-- **diplomatic_relations**: Country relationships
-- **laws**: Country-specific legal frameworks
-- **crimes**: Crime records and enforcement
-- **trades**: Trading session data
-- **alliances**: Alliance agreements and memberships
+### Phase 1: Foundation
+1. Setup Maven project structure
+2. Create main plugin class with static instance
+3. Implement configuration management
+4. Setup data storage system with Gson
+5. Create basic command framework
+6. Implement chat utilities and messaging
+
+### Phase 2: Core Country System
+1. Country data model and management
+2. Player citizenship system
+3. Government types and roles
+4. Basic country commands (/country create, join, leave, info)
+5. Country GUI dashboard
+
+### Phase 3: Territory Management
+1. Chunk-based land claiming system
+2. Territory types and protection
+3. Territory management commands
+4. Visual territory boundaries
+5. Territory GUI interface
+
+### Phase 4: Economy System
+1. Personal and country bank accounts
+2. Tax collection system
+3. Salary distribution
+4. Transaction logging
+5. Economy GUI interface
+6. Vault compatible economy
+
+### Phase 5: Diplomacy & Trade
+1. Inter-country relationships
+2. Alliance system
+3. Trade agreements
+4. Diplomatic commands
+5. Diplomacy GUI interface
+
+### Phase 6: Law & Order
+1. Legal system with laws
+2. Crime tracking
+3. Arrest and fine system
+4. Law enforcement roles
+5. Legal GUI interface
+
+### Phase 7: Advanced Features
+1. Country flags and customization
+2. Advanced territory features
+3. Statistics and analytics
+4. API for other plugins
+5. Performance optimization
+
+## Technical Specifications
+
+### Data Storage
+- SQLITE for persistent storage
+- Async file operations for performance
+- Data validation to prevent fraud in transactions and migration support
+- Backup and recovery systems
+
+### GUI System
+- Inventory-based GUIs using Paper API
+- Pagination for large datasets
+- Interactive buttons and navigation
+- Real-time data updates
+
+### Economy Integration
+- Vault API integration
+- Custom currency system
+- Transaction security
+- Anti-duplication measures
+
+### Performance Considerations
+- Async chunk loading/unloading
+- Efficient data caching
+- Optimized database queries
+- Memory management
 
 ## Configuration Files
-- **config.yml**: Main plugin configuration
-- **messages.yml**: Localization and message templates
-- **territories.yml**: Territory type definitions
-- **governments.yml**: Government type configurations
-- **economy.yml**: Economic settings and parameters
 
-## Key Design Principles
-1. **Modularity**: Each system is independently manageable
-2. **Extensibility**: Easy to add new features and government types
-3. **Performance**: Optimized for large servers with many players
-4. **Configurability**: Extensive customization options
-5. **Security**: Robust permission system and data validation
-6. **User Experience**: Intuitive interfaces and clear feedback
+### config.yml
+```yaml
+# General settings
+enable-debug: false
+auto-save-interval: 300
+max-countries-per-player: 1
+max-territories-per-country: 50
 
-## Success Metrics
-- Stable performance with 100+ concurrent players
-- Zero data loss incidents
-- < 50ms average response time for common operations
-- 95%+ uptime during active development phases
-- Comprehensive test coverage (>80%)
+# Economy settings
+starting-balance: 1000.0
+tax-collection-interval: 86400
+default-tax-rate: 0.05
+
+# Territory settings
+chunk-claim-cost: 100.0
+max-chunks-per-territory: 100
+allow-wilderness-claims: true
+
+# Diplomacy settings
+alliance-cost: 5000.0
+war-declaration-cost: 10000.0
+```
+
+### messages.yml
+```yaml
+# Country messages
+country:
+  created: "&aCountry '{country}' has been created!"
+  joined: "&aYou have joined {country}!"
+  not-found: "&cCountry not found!"
+  
+# Territory messages
+territory:
+  claimed: "&aTerritory claimed successfully!"
+  protected: "&cThis territory is protected!"
+  
+# Economy messages
+economy:
+  insufficient-funds: "&cInsufficient funds!"
+  transaction-complete: "&aTransaction completed!"
+```
+
+## Command Structure
+
+### /country
+- `/country create <name>` - Create a new country
+- `/country info [name]` - View country information
+- `/country join <name>` - Join a country
+- `/country leave` - Leave current country
+- `/country invite <player>` - Invite player to country
+- `/country kick <player>` - Remove player from country
+- `/country promote <player>` - Promote player rank
+- `/country demote <player>` - Demote player rank
+- `/country gui` - Open country management GUI
+
+### /territory
+- `/territory claim <name>` - Claim current chunk
+- `/territory unclaim` - Unclaim current chunk
+- `/territory info` - View territory information
+- `/territory list` - List all territories
+- `/territory gui` - Open territory management GUI
+
+### /economy
+- `/economy balance [player]` or /balance or /bal - Check balance
+- `/economy pay <player> <amount>` - Send money
+- `/economy tax set <rate>` - Set country tax rate
+- `/economy salary <role> <amount>` - Set role salary
+- `/economy gui` - Open economy management GUI
+
+### /diplomacy
+- `/diplomacy ally <country>` - Propose alliance
+- `/diplomacy enemy <country>` - Declare war
+- `/diplomacy neutral <country>` - Set neutral relations
+- `/diplomacy trade <country>` - Propose trade agreement
+- `/diplomacy gui` - Open diplomacy GUI
+
+## Implementation Priority
+1. Foundation and configuration system
+2. Country creation and management
+3. Territory claiming system
+4. Basic economy features
+5. GUI interfaces
+6. Diplomacy features
+7. Law enforcement system
+8. Advanced features and optimization

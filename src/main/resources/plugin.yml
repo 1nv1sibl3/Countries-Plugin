@@ -1,133 +1,254 @@
 name: Countries
-version: '${project.version}'
+version: '1.0.0'
 main: xyz.inv1s1bl3.countries.CountriesPlugin
 api-version: '1.21'
-prefix: Countries
 authors: [inv1s1bl3]
-description: A comprehensive plugin for managing countries, territories, economy, and diplomacy
-website: https://github.com/inv1s1bl3/Countries
+description: A comprehensive Minecraft plugin for country management, territories, and diplomacy
+website: https://github.com/inv1s1bl3/countries-plugin
 
 depend: [Vault]
-softdepend: [PlaceholderAPI, WorldEdit, Dynmap]
-
-commands:
-  country:
-    description: Main country management command
-    usage: /<command> <subcommand> [args...]
-    permission: countries.command.country
-    aliases: [c, nation, n]
-  
-  territory:
-    description: Territory management command
-    usage: /<command> <subcommand> [args...]
-    permission: countries.command.territory
-    aliases: [t, land, claim]
-  
-  economy:
-    description: Economy management command
-    usage: /<command> <subcommand> [args...]
-    permission: countries.command.economy
-    aliases: [eco, money, balance]
-  
-  diplomacy:
-    description: Diplomacy management command
-    usage: /<command> <subcommand> [args...]
-    permission: countries.command.diplomacy
-    aliases: [diplo, relations]
-  
-  trade:
-    description: Trading system command
-    usage: /<command> <subcommand> [args...]
-    permission: countries.command.trade
-    aliases: [trading]
-  
-  legal:
-    description: Legal system command
-    usage: /<command> <subcommand> [args...]
-    permission: countries.command.legal
-    aliases: [law, court, crime]
-  
-  countries-admin:
-    description: Administrative commands
-    usage: /<command> <subcommand> [args...]
-    permission: countries.admin
-    aliases: [cadmin, countriesadmin]
 
 permissions:
   countries.*:
     description: Grants all Countries permissions
     default: op
     children:
-      countries.command.*: true
-      countries.admin: true
-  
-  countries.command.*:
-    description: Grants all command permissions
+      countries.admin.*: true
+      countries.user.*: true
+      
+  countries.admin.*:
+    description: Grants all admin permissions
+    default: op
+    children:
+      countries.admin.reload: true
+      countries.admin.debug: true
+      countries.admin.force: true
+      
+  countries.admin.reload:
+    description: Allows reloading the plugin configuration
+    default: op
+    
+  countries.admin.debug:
+    description: Allows toggling debug mode
+    default: op
+    
+  countries.admin.force:
+    description: Allows forcing actions on behalf of other players
+    default: op
+    
+  countries.user.*:
+    description: Grants all user permissions
     default: true
     children:
-      countries.command.country: true
-      countries.command.territory: true
-      countries.command.economy: true
-      countries.command.diplomacy: true
-      countries.command.trade: true
-      countries.command.legal: true
-  
-  countries.command.country:
-    description: Allows use of country commands
+      countries.country.*: true
+      countries.territory.*: true
+      countries.economy.*: true
+      countries.diplomacy.*: true
+      
+  countries.country.*:
+    description: Grants all country permissions
     default: true
-  
-  countries.command.territory:
-    description: Allows use of territory commands
-    default: true
-  
-  countries.command.economy:
-    description: Allows use of economy commands
-    default: true
-  
-  countries.command.diplomacy:
-    description: Allows use of diplomacy commands
-    default: true
-  
-  countries.command.trade:
-    description: Allows use of trade commands
-    default: true
-  
-  countries.command.legal:
-    description: Allows use of legal commands
-    default: true
-  
-  countries.admin:
-    description: Grants administrative access
-    default: op
-  
-  countries.bypass:
-    description: Bypasses all protections and restrictions
-    default: false
-  
+    children:
+      countries.country.create: true
+      countries.country.join: true
+      countries.country.leave: true
+      countries.country.invite: true
+      countries.country.kick: true
+      countries.country.promote: true
+      countries.country.demote: true
+      countries.country.info: true
+      countries.country.gui: true
+      
   countries.country.create:
-    description: Allows creating countries
+    description: Allows creating a country
     default: true
-  
-  countries.country.dissolve:
-    description: Allows dissolving own country
+    
+  countries.country.join:
+    description: Allows joining a country
     default: true
-  
+    
+  countries.country.leave:
+    description: Allows leaving a country
+    default: true
+    
+  countries.country.invite:
+    description: Allows inviting players to country
+    default: true
+    
+  countries.country.kick:
+    description: Allows kicking players from country
+    default: true
+    
+  countries.country.promote:
+    description: Allows promoting players in country
+    default: true
+    
+  countries.country.demote:
+    description: Allows demoting players in country
+    default: true
+    
+  countries.country.info:
+    description: Allows viewing country information
+    default: true
+    
+  countries.country.gui:
+    description: Allows accessing country GUI
+    default: true
+    
+  countries.territory.*:
+    description: Grants all territory permissions
+    default: true
+    children:
+      countries.territory.claim: true
+      countries.territory.unclaim: true
+      countries.territory.info: true
+      countries.territory.list: true
+      countries.territory.gui: true
+      
   countries.territory.claim:
-    description: Allows claiming territory
+    description: Allows claiming territories
     default: true
-  
+    
   countries.territory.unclaim:
-    description: Allows unclaiming territory
+    description: Allows unclaiming territories
     default: true
-  
-  countries.economy.transfer:
-    description: Allows money transfers
+    
+  countries.territory.info:
+    description: Allows viewing territory information
     default: true
-  
-  countries.trade.initiate:
-    description: Allows initiating trades
+    
+  countries.territory.list:
+    description: Allows listing territories
     default: true
-  
-  countries.diplomacy.manage:
-    description: Allows managing diplomatic relations
+    
+  countries.territory.gui:
+    description: Allows accessing territory GUI
+    default: true
+    
+  # Permission-based claiming limits
+  countries.chunks.10:
+    description: Allows claiming up to 10 chunks
+    default: true
+    
+  countries.chunks.50:
+    description: Allows claiming up to 50 chunks
     default: false
+    
+  countries.chunks.100:
+    description: Allows claiming up to 100 chunks
+    default: false
+    
+  countries.chunks.500:
+    description: Allows claiming up to 500 chunks
+    default: false
+    
+  countries.chunks.unlimited:
+    description: Allows unlimited chunk claiming
+    default: op
+    
+  countries.territories.1:
+    description: Allows creating up to 1 territory
+    default: true
+    
+  countries.territories.5:
+    description: Allows creating up to 5 territories
+    default: false
+    
+  countries.territories.10:
+    description: Allows creating up to 10 territories
+    default: false
+    
+  countries.territories.unlimited:
+    description: Allows unlimited territory creation
+    default: op
+    
+  countries.economy.*:
+    description: Grants all economy permissions
+    default: true
+    children:
+      countries.economy.balance: true
+      countries.economy.pay: true
+      countries.economy.tax: true
+      countries.economy.salary: true
+      countries.economy.gui: true
+      
+  countries.economy.balance:
+    description: Allows checking balance
+    default: true
+    
+  countries.economy.pay:
+    description: Allows sending money to other players
+    default: true
+    
+  countries.economy.tax:
+    description: Allows managing country taxes
+    default: true
+    
+  countries.economy.salary:
+    description: Allows setting role salaries
+    default: true
+    
+  countries.economy.gui:
+    description: Allows accessing economy GUI
+    default: true
+    
+  countries.diplomacy.*:
+    description: Grants all diplomacy permissions
+    default: true
+    children:
+      countries.diplomacy.ally: true
+      countries.diplomacy.enemy: true
+      countries.diplomacy.neutral: true
+      countries.diplomacy.trade: true
+      countries.diplomacy.gui: true
+      
+  countries.diplomacy.ally:
+    description: Allows proposing alliances
+    default: true
+    
+  countries.diplomacy.enemy:
+    description: Allows declaring war
+    default: true
+    
+  countries.diplomacy.neutral:
+    description: Allows setting neutral relations
+    default: true
+    
+  countries.diplomacy.trade:
+    description: Allows proposing trade agreements
+    default: true
+    
+  countries.diplomacy.gui:
+    description: Allows accessing diplomacy GUI
+    default: true
+
+commands:
+  countries:
+    description: Main Countries command
+    aliases: [c, country]
+    usage: /<command> [help]
+  
+  territory:
+    description: Territory management command
+    aliases: [t, land]
+    usage: /<command> [help]
+    
+  ceconomy:
+    description: Countries economy command
+    aliases: [cbal, cbalance, cpay]
+    usage: /<command> [help]
+    
+  diplomacy:
+    description: Diplomacy management command
+    aliases: [diplo, relations]
+    usage: /<command> [help]
+    
+  law:
+    description: Law and order management command
+    aliases: [laws, legal, police]
+    usage: /<command> [help]
+    
+  cadmin:
+    description: Countries admin command
+    aliases: [countriesadmin]
+    usage: /<command> [help]
