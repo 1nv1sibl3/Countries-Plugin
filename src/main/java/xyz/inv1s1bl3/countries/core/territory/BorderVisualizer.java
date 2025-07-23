@@ -153,7 +153,7 @@ public class BorderVisualizer {
         int minZ = Math.min(corner1.getBlockZ(), corner2.getBlockZ());
         int maxZ = Math.max(corner1.getBlockZ(), corner2.getBlockZ());
         
-        Particle particle = Particle.VILLAGER_HAPPY;
+        Particle particle = Particle.HAPPY_VILLAGER;
         
         // Show corners
         spawnParticle(player, world, minX, minY, minZ, Particle.HAPPY_VILLAGER);
@@ -207,7 +207,7 @@ public class BorderVisualizer {
             case AGRICULTURAL -> Particle.COMPOSTER;
             case RECREATIONAL -> Particle.NOTE;
             case GOVERNMENT -> Particle.ENCHANT;
-            case WILDERNESS -> Particle.WATER_DROP;
+            case WILDERNESS -> Particle.DRIPPING_WATER;
         };
     }
     
