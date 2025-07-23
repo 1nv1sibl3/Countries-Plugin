@@ -14,6 +14,7 @@ import xyz.inv1s1bl3.countries.utils.ChatUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * GUI interface for territory management.
@@ -80,7 +81,7 @@ public class TerritoryGUI {
         gui.setItem(28, borderItem);
         
         // Flags Management
-        ItemStack flagsItem = createItem(Material.BANNER, "&6&lFlags & Permissions", 
+        ItemStack flagsItem = createItem(Material.WHITE_BANNER, "&6&lFlags & Permissions", 
                 "&7Manage territory flags", "&7and player permissions");
         gui.setItem(30, flagsItem);
         
@@ -319,9 +320,12 @@ public class TerritoryGUI {
             lore.add("&6Left-click to configure");
             lore.add("&6Right-click to toggle rental");
             
+            List<String> allLore = new ArrayList<>();
+            allLore.add("&7Status: " + status);
+            allLore.addAll(lore);
+            
             ItemStack rentalItem = createItem(material, "&e" + subArea.getName(),
-                    "&7Status: " + status,
-                    lore.toArray(new String[0]));
+                    allLore.toArray(new String[0]));
             
             gui.setItem(slot++, rentalItem);
         }

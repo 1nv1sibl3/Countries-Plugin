@@ -11,6 +11,9 @@ import xyz.inv1s1bl3.countries.CountriesPlugin;
 import xyz.inv1s1bl3.countries.core.territory.*;
 import xyz.inv1s1bl3.countries.utils.ChatUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Handles GUI click events for territory management.
  */

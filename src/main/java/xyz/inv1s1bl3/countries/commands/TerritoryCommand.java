@@ -6,10 +6,15 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import xyz.inv1s1bl3.countries.CountriesPlugin;
 import xyz.inv1s1bl3.countries.core.country.Country;
 import xyz.inv1s1bl3.countries.core.territory.Territory;
 import xyz.inv1s1bl3.countries.core.territory.TerritoryType;
+import xyz.inv1s1bl3.countries.core.territory.TerritoryFlag;
+import xyz.inv1s1bl3.countries.core.territory.TerritoryRole;
+import xyz.inv1s1bl3.countries.core.territory.SubArea;
 import xyz.inv1s1bl3.countries.utils.ChatUtils;
 
 import java.util.*;

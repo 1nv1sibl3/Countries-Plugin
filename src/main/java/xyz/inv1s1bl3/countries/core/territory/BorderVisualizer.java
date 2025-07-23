@@ -4,6 +4,7 @@ import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import xyz.inv1s1bl3.countries.CountriesPlugin;
+import xyz.inv1s1bl3.countries.utils.ChatUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -155,14 +156,14 @@ public class BorderVisualizer {
         Particle particle = Particle.VILLAGER_HAPPY;
         
         // Show corners
-        spawnParticle(player, world, minX, minY, minZ, particle);
-        spawnParticle(player, world, maxX, minY, minZ, particle);
-        spawnParticle(player, world, minX, maxY, minZ, particle);
-        spawnParticle(player, world, maxX, maxY, minZ, particle);
-        spawnParticle(player, world, minX, minY, maxZ, particle);
-        spawnParticle(player, world, maxX, minY, maxZ, particle);
-        spawnParticle(player, world, minX, maxY, maxZ, particle);
-        spawnParticle(player, world, maxX, maxY, maxZ, particle);
+        spawnParticle(player, world, minX, minY, minZ, Particle.HAPPY_VILLAGER);
+        spawnParticle(player, world, maxX, minY, minZ, Particle.HAPPY_VILLAGER);
+        spawnParticle(player, world, minX, maxY, minZ, Particle.HAPPY_VILLAGER);
+        spawnParticle(player, world, maxX, maxY, minZ, Particle.HAPPY_VILLAGER);
+        spawnParticle(player, world, minX, minY, maxZ, Particle.HAPPY_VILLAGER);
+        spawnParticle(player, world, maxX, minY, maxZ, Particle.HAPPY_VILLAGER);
+        spawnParticle(player, world, minX, maxY, maxZ, Particle.HAPPY_VILLAGER);
+        spawnParticle(player, world, maxX, maxY, maxZ, Particle.HAPPY_VILLAGER);
         
         // Show edges (sample points)
         int step = Math.max(1, (maxX - minX) / 10);
@@ -200,13 +201,13 @@ public class BorderVisualizer {
     private Particle getParticleType(TerritoryType type) {
         return switch (type) {
             case RESIDENTIAL -> Particle.HEART;
-            case COMMERCIAL -> Particle.VILLAGER_HAPPY;
-            case INDUSTRIAL -> Particle.SMOKE_NORMAL;
+            case COMMERCIAL -> Particle.HAPPY_VILLAGER;
+            case INDUSTRIAL -> Particle.SMOKE;
             case MILITARY -> Particle.CRIT;
             case AGRICULTURAL -> Particle.COMPOSTER;
             case RECREATIONAL -> Particle.NOTE;
-            case GOVERNMENT -> Particle.ENCHANTMENT_TABLE;
-            case WILDERNESS -> Particle.DRIP_WATER;
+            case GOVERNMENT -> Particle.ENCHANT;
+            case WILDERNESS -> Particle.WATER_DROP;
         };
     }
     
